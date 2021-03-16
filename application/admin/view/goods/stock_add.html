@@ -1,0 +1,59 @@
+<form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+    <div class="panel panel-default panel-intro" style="margin-bottom: 15px;">
+        <div class="panel-heading">
+            <div class="panel-lead">
+                <em>温馨提示</em>
+                添加库存时请尽量按照提示要求填写
+                <br>
+                {if condition="$goods_info.goods_type == 0"}
+                每行填写一个卡密
+                {elseif condition="$goods_info.goods_type == 1"}
+                每行填写一个激活码
+                {elseif condition="$goods_info.goods_type == 2"}
+                每行填写一组账号密码，格式为：账号123456密码123456
+                {elseif condition="$goods_info.goods_type == 3"}
+                您可以一次性选择多张图片进行上传
+                {/if}
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">
+            {if condition="$goods_info.goods_type == 0"}
+            卡密
+            {elseif condition="$goods_info.goods_type == 1"}
+            激活码
+            {elseif condition="$goods_info.goods_type == 2"}
+            账号密码
+            {elseif condition="$goods_info.goods_type == 3"}
+            上传图片
+            {/if}
+            ：
+        </label>
+        {if condition="$goods_info.goods_type == 3"}
+        <div class="col-xs-12 col-sm-8">
+            <div class="input-group">
+                <input id="c-kami" class="form-control" size="50" name="row[kami]" type="text">
+                <div class="input-group-addon no-border no-padding">
+                    <span><button type="button" id="faupload-kami" class="btn btn-danger faupload" data-input-id="c-kami" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multiple="true" data-preview-id="p-kami"><i class="fa fa-upload"></i> {:__('Upload')}</button></span>
+                    <span><button type="button" id="fachoose-kami" class="btn btn-primary fachoose" data-input-id="c-kami" data-mimetype="image/*" data-multiple="true"><i class="fa fa-list"></i> {:__('Choose')}</button></span>
+                </div>
+                <span class="msg-box n-right" for="c-kami"></span>
+            </div>
+            <ul class="row list-inline faupload-preview" id="p-kami"></ul>
+        </div>
+        {else /}
+        <div class="col-xs-12 col-sm-8">
+            <textarea id="c-kami" class="form-control " rows="15" name="row[kami]"></textarea>
+        </div>
+        {/if}
+    </div>
+
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
+</form>

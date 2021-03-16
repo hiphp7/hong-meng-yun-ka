@@ -1,0 +1,122 @@
+{php}
+$goods = goods_info($post['goods_id']);
+$pay_list = pay_list(); //获取可支付列表
+
+
+{/php}
+{include file="content/template/default/header.html" /}
+
+<div class="main">
+    <div class="layui-row">
+        <div class="layui-col-md8 layui-col-md-offset2 layui-col-sm12">
+            <div class="main-box">
+                <div class="pay-title">
+                    <svg style="margin-bottom: -6px;" t="1603120404646" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1611" width="27" height="27">
+                        <path d="M320.512 428.032h382.976v61.44H320.512zM320.512 616.448h320.512v61.44H320.512z" fill="#00EAFF" p-id="1612" data-spm-anchor-id="a313x.7781069.0.i3" class="selected"></path>
+                        <path d="M802.816 937.984H221.184l-40.96-40.96V126.976l40.96-40.96h346.112l26.624 10.24 137.216 117.76 98.304 79.872 15.36 31.744v571.392l-41.984 40.96z m-540.672-81.92h500.736V345.088L677.888 276.48 550.912 167.936H262.144v688.128z" fill="#3C8CE7" p-id="1613" data-spm-anchor-id="a313x.7781069.0.i0" class=""></path>
+                    </svg>
+                    确认订单
+                </div>
+
+                <div class="layui-card-body">
+                    <table class="layui-table" lay-skin="nob">
+                        <colgroup>
+                            <col width="50%">
+                            <col width="50%">
+                        </colgroup>
+                        <tbody>
+                        <tr>
+                            <td style="text-align: right">商品名称：</td>
+                            <td>
+                                <span class="small-tips tips-green noML">{$goods.name}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: right">商品单价：</td>
+                            <td>
+                                <span class="small-tips tips-green noML">
+                                    ￥{$goods.price}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: right">购买数量：</td>
+                            <td><span class="small-tips tips-green noML">x {$post.goods_num}</span></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: right">实际支付金额：</td>
+                            <td>
+                                <span class="small-tips tips-green noML">￥{$post.goods_num * $goods.price}</span>
+                            </td>
+
+                        </tr>
+                        {if condition="!empty($attach)"}
+                        <tr>
+                            <td style="text-align: right">订单资料:</td>
+                            <td>
+                                {foreach name="$attach" item="vo" key="key"}
+                                {$key}:{$vo} <br>
+                                {/foreach}
+                            </td>
+                        </tr>
+                        {/if}
+                        <tr>
+                            <td style="text-align: right">支付方式：</td>
+                            <td>
+                                
+                                
+                                
+                                {php}$pay = false;{/php}
+                                {if condition="$pay_list.alipay == true"}
+                                {php}$pay = true;{/php}
+                                <div class="pay-type" data-type="zfbf2f" data-id="alipay" data-name="支付宝支付"></div>
+                                {/if}
+                                {if condition="$pay_list.wxpay == true"}
+                                {php}$pay = true;{/php}
+                                <div class="pay-type" data-type="wxpay" data-id="wxpay" data-name="微信支付"></div>
+                                {/if}
+                                {if condition="$pay_list.qqpay == true"}
+                                {php}$pay = true;{/php}
+                                <div class="pay-type" data-type="qqpay" data-id="qqpay" data-name="QQ支付"></div>
+                                {/if}
+                                {if condition="$pay == false"}
+                                暂未提供任何支付方式
+                                {/if}
+                                
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <p class="btn" style="text-align: center">
+                        <a href="javascript:;">立即支付</a>
+                    </p>
+
+                </div>
+                <form class="layui-form layui-form-pane hide" action="{:url('/pay')}" method="get">
+                    <input name="pay_type" value="" type="hidden" />
+                    {foreach name="$post" item="vo" key="key"}
+                    <input type="hidden" name="{$key}" value="{$vo}">
+                    {/foreach}
+
+                    <input type="submit" value="提交" id="buy-btn">
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    
+    window.onload = function(){
+        $('.btn').click(function(){
+            $('#buy-btn').click();
+        })
+    }
+
+    
+</script>
+
+{include file="content/template/default/footer.html" /}

@@ -1,0 +1,86 @@
+{php}
+
+{/php}
+{include file="content/template/default/header.html" /}
+
+
+<div class="main">
+    <div class="layui-row">
+        <div class="layui-col-md8 layui-col-md-offset2 layui-col-sm12">
+            <div class="main-box">
+
+                <div class="pay-title">
+                    <svg style="margin-bottom: -6px;" t="1603120404646" class="icon" viewBox="0 0 1024 1024"
+                         version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1611" width="27" height="27">
+                        <path d="M320.512 428.032h382.976v61.44H320.512zM320.512 616.448h320.512v61.44H320.512z"
+                              fill="#00EAFF" p-id="1612" data-spm-anchor-id="a313x.7781069.0.i3"
+                              class="selected"></path>
+                        <path d="M802.816 937.984H221.184l-40.96-40.96V126.976l40.96-40.96h346.112l26.624 10.24 137.216 117.76 98.304 79.872 15.36 31.744v571.392l-41.984 40.96z m-540.672-81.92h500.736V345.088L677.888 276.48 550.912 167.936H262.144v688.128z"
+                              fill="#3C8CE7" p-id="1613" data-spm-anchor-id="a313x.7781069.0.i0" class=""></path>
+                    </svg>
+                    登录
+                </div>
+                <div class="layui-card-body">
+
+                    <div class="layui-tab">
+                        <div class="layui-tab-content" style="text-align: center">
+
+                            <div class="layui-tab-item layui-show">
+                                <div class="entry">
+                                    <span class="l-msg">账号:</span>
+                                    <label class="input">
+                                        <input type="text" id="account" required="" lay-verify="required"
+                                               placeholder="账号/邮箱/手机号" autocomplete="off">
+                                    </label>
+                                </div>
+                                <div class="entry">
+                                    <span class="l-msg">密码:</span>
+                                    <label class="input">
+                                        <input type="password" id="password" required="" lay-verify="required"
+                                               placeholder="请输入登录密码" autocomplete="off">
+                                    </label>
+                                </div>
+                                <div class="btn">
+                                    <button id="btn-login">立即登录</button>
+                                </div>
+                                <a href="{:url('/register')}" style="cursor: pointer; margin-top: 20px; display: block;">还没有账号？去注册</a>
+
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    
+window.onload = function(){
+    $("#btn-login").click(function(){
+        var account = $("#account").val();
+        var password = $("#password").val();
+        if(account == ''){
+            layer.msg("帐号不能为空");
+            return;
+        }
+        if(password == '' || password.length < 6){
+            layer.msg("密码错误");
+            return;
+        }
+        var data = {"account":account, "password":password};
+        $.post("{:url('/login')}", data, function(e){
+            layer.msg(e.msg);
+            if(e.code == 1){
+                history.back();
+                // location.href = "{:url('/user')}";
+            }
+        }, "json");
+    })
+}
+</script>
+{include file="content/template/default/footer.html" /}
+
+

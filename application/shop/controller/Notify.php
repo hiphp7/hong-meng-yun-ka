@@ -1,0 +1,344 @@
+<?php
+
+namespace app\shop\controller;
+
+use app\common\controller\Fun;
+use app\shop\controller\pay\Epay;
+use app\shop\controller\pay\Vpay;
+use think\Db;
+use think\Controller;
+
+/**
+ * 回调类
+ */
+class Notify extends Controller {
+
+    // 表单提交字符集编码
+    public $postCharset = "UTF-8";
+    private $fileCharset = "UTF-8";
+
+    //订单回调
+    public function order() {
+
+		$pay_type = $this->request->param('type'); //支付类型
+
+		$check_sign = false; //验签
+
+
+		if($pay_type == 'codepay'){ //码支付验签
+
+    		try{
+    		    $codepay_result = db::name('pay')->where(['type' => 'codepay'])->find();
+    			$codepay = json_decode($codepay_result['value'], true);
+
+    			$codepay_key= $codepay['codepay_key']; //这是您的通讯密钥
+
+    			$post = $this->request->post();
+
+    			ksort($post); //排序post参数
+    			reset($post); //内部指针指向数组中的第一个元素
+
+    			$sign = '';//初始化
+    			foreach ($post as $key => $val) { //遍历POST参数
+    				if ($val == '' || $key == 'sign'){
+    					continue; //跳过这些不签名
+    				}
+    				if ($sign){
+    					$sign .= '&'; //第一个字符串签名不加& 其他加&连接起来参数
+    				}
+    				$sign .= "$key=$val"; //拼接为url参数形式
+    			}
+    			if (!$post['pay_no'] || md5($sign . $codepay_key) != $post['sign']) { //不合法的数据
+    				exit('fail');  //返回失败 继续补单
+    			} else { //合法的数据
+    				//业务处理
+    				$check_sign = true;
+    				$order_no = $post['pay_id']; //需要充值的ID 或订单号 或用户名
+    			}
+    		}catch(\Exception $e){
+    		    db::name('test')->insert(['content' => $e->getMessage() . $e->getLine() . $e->getFile()]);
+    		}
+
+
+
+		}elseif($pay_type == 'alipay'){ //支付宝验签
+
+		    try {
+		        //接收回调报文
+    			$content = file_get_contents("php://input");
+
+    			//调用支付宝验签方法
+    			$check_sign = $this->ali_check_sign($content);
+    			$order_no = empty($check_sign['order_no']) ? null : $check_sign['order_no'];
+		    } catch (\Exception $e) {
+		        db::name('test')->insert(['content' => $e->getMessage() . $e->getLine() . $e->getFile()]);
+		    }
+		}elseif($pay_type == 'epay'){ //易支付验签
+            try {
+                $epay = new Epay();
+
+                if(!empty($_GET)) {//判断POST来的数组是否为空
+                    //生成签名结果
+                    $isSign = $epay->getSignVeryfy($_GET, $_GET["sign"]);
+                    //获取支付宝远程服务器ATN结果（验证是否是支付宝发来的消息）
+                    $responseTxt = 'true';
+                    //$responseTxt = $this->getResponse($_GET["trade_no"]);
+                    //验证
+                    //$responsetTxt的结果不是true，与服务器设置问题、合作身份者ID、notify_id一分钟失效有关
+                    //isSign的结果不是true，与安全校验码、请求时的参数格式（如：带自定义参数等）、编码格式有关
+                    if (preg_match("/true$/i",$responseTxt) && $isSign) {
+                        $check_sign = true;
+                        $order_no = $_GET['out_trade_no'];
+                    }else{
+                        db::name('test')->insert(['content' => '易支付验签失败！']);
+                    }
+                }
+            }catch(\Exception $e){
+                db::name('test')->insert(['content' => $e->getMessage() . $e->getLine() . $e->getFile()]);
+            }
+
+
+        }elseif($pay_type == 'vpay'){ //v免签验签。
+            db::name('test')->insert(['content' => 'vvvvv！']);
+            try {
+                $epay = new Vpay();
+
+                $key = $epay->secret_key;//通讯密钥
+                $payId = $_GET['payId'];//商户订单号
+                $param = $_GET['param'];//创建订单的时候传入的参数
+                $type = $_GET['type'];//支付方式 ：微信支付为1 支付宝支付为2
+                $price = $_GET['price'];//订单金额
+                $reallyPrice = $_GET['reallyPrice'];//实际支付金额
+                $sign = $_GET['sign'];//校验签名，计算方式 = md5(payId + param + type + price + reallyPrice + 通讯密钥)
+                //开始校验签名
+                $_sign =  md5($payId . $param . $type . $price . $reallyPrice . $key);
+                if ($_sign == $sign) {
+                    $check_sign = true;
+                    $order_no = $payId;
+
+                }else{
+                    db::name('test')->insert(['content' => 'v免签验签失败！']);
+                    echo "error_sign";die;
+                }
+
+            }catch(\Exception $e){
+                db::name('test')->insert(['content' => $e->getMessage() . $e->getLine() . $e->getFile()]);
+            }
+
+
+        }
+
+
+        if($check_sign){ //验签成功
+
+            db::startTrans();
+            try {
+
+                $order = db::name('order')->where(['order_no' => $order_no, 'pay' => 0])->find();
+
+                if (!$order) {
+                    echo 'success';
+                    die;
+                }
+                $goods = db::name('goods')->where(['id' => $order['goods_id']])->find();
+                $timestamp = time();
+                /**
+                 * 1, 记录用户账单，增加用户消费金额
+                 * 2，增加商品销量和商品销售额
+                 * 3，重置商品库存
+                 * 4，修改订单支付状态
+                 * 5，修改订单发货状态（判断商品是否自动发货）
+                 */
+                //1， 记录用户账单
+                if($order["uid"] > 0) {
+                    $bill_insert = [
+                        'uid' => $order['uid'],
+                        'description' => '购买商品 ' . $goods['name'] . ' x' . $order['goods_num'],
+                        'createtime' => $timestamp,
+                        'value' => '-' . sprintf("%.2f", $order['money']),
+                        'type' => 'goods', //购买商品
+                    ];
+                    db::name('money_bill')->insert($bill_insert);
+                    db::name("user")->where(["id" => $order["uid"]])->setInc("consume", $order["money"]);
+                }
+                //2，增加商品销量和商品销售额，减去商品库存
+                db::name('goods')->where(['id' => $goods['id']])->setInc('sales');
+                db::name('goods')->where(['id' => $goods['id']])->setInc('sales_money', $order['money']);
+                db::name('goods')->where(['id' => $goods['id']])->setDec('stock', $order['goods_num']); //减去商品库存
+                $status = $goods['deliver'] == 0 ? 2 : 1; //自动发货=0 已发货=2 手动发货=1 代发货=1
+                $update = [
+                    'pay' => 1, //支付状态
+                    'status' => $status, //发货状态
+                    'paytime' => $timestamp, //支付时间
+                ];
+
+                if ($goods['deliver'] == 0) { //商品类型是自动发货时
+                    $kami = $this->getKami($goods['id'], $order['goods_num']); //从商品库存中拿出用户购买的卡密并返回剩余卡密
+                    $update['kami'] = $kami;
+                }
+
+                db::name('order')->where(['id' => $order['id']])->update($update); //修改订单记录
+                db::commit();
+                echo 'success';
+                die;
+            } catch (\Exception $e) {
+                Db::rollback();
+                db::name('test')->insert(['content' => $e->getMessage() . $e->getFile() . $e->getLIne()]);
+                echo 'error';
+                die;
+            }
+
+        }
+
+    }
+
+
+
+
+
+    //充值回调
+    public function recharge() {
+        // db::name('test')->insert(['content' => '进入充值回调']);
+        try {
+
+            //接收回调报文
+            $content = file_get_contents("php://input");
+
+            //调用支付宝验签方法
+            $check_sign = $this->ali_check_sign($content);
+
+            if ($check_sign) { //验签成功
+                db::startTrans();
+                try {
+                    $order_no = $check_sign['order_no']; //订单号
+
+                    $money_bill = db::name('money_bill')->where(['order_no' => $order_no, 'status' => 0])->find();
+
+                    if (!$money_bill) {
+                        echo 'success';
+                        die;
+                    }
+
+                    $update = [
+                        'status' => 1, 'handletime' => time(),
+                    ];
+                    db::name('money_bill')->where(['id' => $money_bill['id']])->update($update); //修改用户账单充值记录
+                    db::name('user')->where(['id' => $money_bill['uid']])->setInc('money', $money_bill['money']); //增加用户余额
+                    db::commit();
+                    echo 'success';
+                    die;
+                } catch (\Exception $e) {
+                    Db::rollback();
+
+                    echo 'error';
+                    die;
+                }
+            }
+        } catch (\Exception $e) {
+            $data = [
+                'createtime' => 2, 'content' => $e->getMessage() . $e->getLine()
+            ];
+
+            echo 'error';
+            echo $e->getMessage() . '--' . $e->getLine();
+            die;
+        }
+        die;
+
+    }
+
+
+	//获取商品的卡密
+    /**
+     * return @kami 取出的卡密
+     * return @goods_kami 剩余的卡密
+    */
+    public function getKami($goods_id, $goods_num) {
+        $kami_result = db::name('cdkey')->where(['goods_id' => $goods_id])->limit($goods_num)->select();
+		$kami = [];
+		foreach($kami_result as $key => $val){
+			db::name('cdkey')->where(['id' => $val['id']])->delete();
+			$kami[] = $val['cdk'];
+		}
+
+		$kami = implode("\r\n", $kami);
+
+		return $kami;
+
+    }
+
+
+    /**
+     * 阿里验签
+     * return @order_no 商户订单号
+     */
+
+    public function ali_check_sign($content) {
+        $content = urldecode($content);
+        $content = mb_convert_encoding($content, 'utf-8', 'gbk');
+        $content = explode('&', $content);
+        $params = [];
+        foreach ($content as $val) {
+            $item = explode('=', $val, "2");
+            $params[$item[0]] = $item[1];
+        }
+
+        $sign = $params['sign'];
+
+        unset($params['sign']);
+        unset($params['sign_type']);
+
+        ksort($params);
+
+
+
+        $stringToBeSigned = "";
+        $i = 0;
+        foreach ($params as $k => $v) {
+            if (false === $this->checkEmpty($v) && "@" != substr($v, 0, 1)) {
+                $v = mb_convert_encoding($v, 'gbk', 'utf-8');
+                if ($i == 0) {
+                    $stringToBeSigned .= "$k" . "=" . "$v";
+                } else {
+                    $stringToBeSigned .= "&" . "$k" . "=" . "$v";
+                }
+                $i++;
+            }
+        }
+        unset ($k, $v);
+
+        $alipay = Db::name('pay')->where(['type' => 'alipay'])->find();
+        $alipay = json_decode($alipay['value'], true);
+
+        $pubKey = $alipay['public_key'];
+        $public_key = "-----BEGIN PUBLIC KEY-----\n" . wordwrap($pubKey, 64, "\n", true) . "\n-----END PUBLIC KEY-----";
+
+        $result = (openssl_verify($stringToBeSigned, base64_decode($sign), $public_key, OPENSSL_ALGO_SHA256) === 1);
+
+        if ($result) {
+
+            return [
+                'order_no' => $params['out_trade_no'],
+            ];
+        } else {
+            db::name('test')->insert(['content' => '支付宝验签失败，大概是支付配置信息错了~']);
+            return false;
+        }
+
+    }
+
+
+    /**
+     * 校验$value是否非空
+     *  if not set ,return true;
+     *    if is null , return true;
+     **/
+    protected function checkEmpty($value) {
+        if (!isset($value)) return true;
+        if ($value === null) return true;
+        if (trim($value) === "") return true;
+
+        return false;
+    }
+
+}

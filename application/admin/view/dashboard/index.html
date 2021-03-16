@@ -1,0 +1,223 @@
+<style type="text/css">
+
+
+    .sm-st-info span {
+        display: block;
+        font-size: 24px;
+        font-weight: 600;
+    }
+
+
+
+    #statistics .panel {
+        min-height: 150px;
+    }
+
+    #statistics .panel h5 {
+        font-size: 13px;
+    }
+</style>
+<div class="panel panel-default panel-intro">
+    <div class="panel-heading">
+        <div class="panel-lead" style="margin-bottom: 10px;">
+            {if condition="$upgrade"}
+            <em>
+                发现新版本 v{$new_version.version}
+                <a data-href="{:url('/admin/upgrade/index/file/')}" id="download-update" style="cursor: pointer;">下载更新</a>
+<!--                <a href="javascript:;" id="check-content">更新内容</a>-->
+            </em>
+            {else /}
+            <em>
+                系统版本 {$version}
+                <a href="javascript:;" id="check-update">检查更新</a>
+                <input type="hidden" id="version" value="{$version}">
+            </em>
+            {/if}
+<!--            用于展示当前系统中的统计数据、统计报表及重要实时数据-->
+        </div>
+    </div>
+    <div class="panel-body">
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade active in" id="one">
+
+                <div class="row" style="margin-top:15px;" id="statistics">
+
+                    <div class="col-lg-12">
+                    </div>
+                    <div class="col-xs-6 col-md-3">
+                        <div class="panel bg-blue-gradient no-border">
+                            <div class="panel-body">
+                                <div class="panel-title">
+                                    <span class="label label-primary pull-right">{:__('Real time')}</span>
+                                    <h5>{:__('用户统计')}</h5>
+                                </div>
+                                <div class="ibox-content">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h1 class="no-margins">{$options.user_total}</h1>
+                                            <div class="font-bold"><i class="fa fa-commenting"></i>
+                                                <small>{:__('用户总数')}</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h1 class="no-margins">{$today_register}</h1>
+                                            <div class="font-bold"><i class="fa fa-heart"></i>
+                                                <small>{:__('今日注册')}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-md-3">
+                        <div class="panel bg-aqua-gradient no-border">
+                            <div class="panel-body">
+                                <div class="ibox-title">
+                                    <span class="label label-primary pull-right">{:__('Real time')}</span>
+                                    <h5>{:__('商品统计')}</h5>
+                                </div>
+                                <div class="ibox-content">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h1 class="no-margins">{$options.goods_total}</h1>
+                                            <div class="font-bold"><i class="fa fa-commenting"></i>
+                                                <small>{:__('商品总数')}</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h1 class="no-margins">{$category_total}</h1>
+                                            <div class="font-bold"><i class="fa fa-heart"></i>
+                                                <small>{:__('分类总数')}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-6 col-md-3">
+                        <div class="panel bg-purple-gradient no-border">
+                            <div class="panel-body">
+                                <div class="ibox-title">
+                                    <span class="label label-primary pull-right">{:__('Real time')}</span>
+                                    <h5>{:__('今日订单量')}</h5>
+                                </div>
+                                <div class="ibox-content">
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h1 class="no-margins">{$today_order}</h1>
+                                            <div class="font-bold"><i class="fa fa-commenting"></i>
+                                                <small>{:__('今日订单数量')}</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h1 class="no-margins">{$today_wait_order}</h1>
+                                            <div class="font-bold"><i class="fa fa-heart"></i>
+                                                <small>{:__('今日待处理订单')}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-md-3">
+                        <div class="panel bg-green-gradient no-border">
+                            <div class="panel-body">
+                                <div class="ibox-title">
+                                    <span class="label label-primary pull-right">{:__('Real time')}</span>
+                                    <h5>{:__('今日成交额')}</h5>
+                                </div>
+                                <div class="ibox-content">
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h1 class="no-margins">{$today_order_money}</h1>
+                                            <div class="font-bold"><i class="fa fa-commenting"></i>
+                                                <small>{:__('今日成交金额')}</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h1 class="no-margins">{$today_order_profit}</h1>
+                                            <div class="font-bold"><i class="fa fa-user"></i>
+                                                <small>{:__('今日盈利金额')}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 20px;">
+                    <div class="col-xs-6">
+                        <h4>商品销量Top10</h4>
+                        <table class="table ">
+                            <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>封面图</th>
+                                <th>名称</th>
+                                <th>销量</th>
+                                <th>销售额</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {volist name="$goods_list" id="vo" key="key"}
+                            <tr>
+                                <td>{$key}</td>
+                                <td><img src="{$vo.cover}" alt="" style="height: 30px;"></td>
+                                <td>{:substrCn($vo.name, 28)}</td>
+                                <td>￥{$vo.sales}</td>
+                                <td>{$vo.sales_money}</td>
+                            </tr>
+                            {/volist}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="col-xs-6" style="border-left: 1px solid #f8f8f8;">
+                        <h4>用户消费Top10</h4>
+                        <table class="table ">
+                            <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>头像</th>
+                                <th>昵称</th>
+                                <th>订单数量</th>
+                                <th>消费金额</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {volist name="user_list" id="vo" key="key"}
+                            <tr>
+                                <td>{$key}</td>
+                                <td><img src="{$vo.avatar}" onerror="javascript:this.src='/assets/img/avatar.png'" style="height: 30px;" alt=""></td>
+                                <td>{$vo.nickname}</td>
+                                <td>{$vo.order_count}</td>
+                                <td>￥{$vo.consume}</td>
+                            </tr>
+                            {/volist}
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script id="logintpl" type="text/html">
+    <div>
+        <form class="form-horizontal">
+            <fieldset>
+                klsjdlksdj
+            </fieldset>
+        </form>
+    </div>
+</script>

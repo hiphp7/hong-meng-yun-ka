@@ -1,0 +1,127 @@
+{php}
+
+{/php}
+{include file="content/template/default/header.html" /}
+<link rel="stylesheet" href="/content/template/default/css/layui_template.css?v={$template_version}">
+<style>
+    .layui-card .layui-card-header span{
+        margin-left: 20px;
+    }
+    .order-no span{
+        width: 70px; text-align: left; display: inline-block;
+    }
+
+    .goods-name span{
+        width: 70px; flex-shrink: 0; text-align: left; display: inline-block;
+    }
+    .goods-price span{
+        width: 70px; text-align: left; display: inline-block; margin-bottom: 10px;
+    }
+    .layadmin-maillist-fluid img{
+        border-radius: 5px;
+        margin-top: 0;
+    }
+    .cover{
+        display: block;
+        text-align: center;
+        border-radius: 5px;
+    }
+    .layadmin-maillist-fluid .layadmin-contact-box{
+        padding-left: 0;
+        border: none;
+    }
+
+    .order-info{
+        line-height: 1.3;
+        border: 1px solid #d6d6d6;
+        padding: 5px;
+    }
+    #copy{
+        margin-top: 10px;
+        float: right;
+    }
+    .kami-img{
+        width: 216px;
+        display: block;
+        border: 1px solid #f1f1f1;
+        text-align: center;
+        margin: 0 auto;
+        margin-bottom: 20px;
+    }
+</style>
+<div class="main">
+    <div class="layui-row">
+        <div class="layui-col-md8 layui-col-md-offset2 layui-col-sm12">
+            <div class="main-box">
+                <div class="pay-title" style="padding-bottom: 14px;">
+                    <svg style="margin-bottom: -6px;" t="1603120404646" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1611" width="27" height="27">
+                        <path d="M320.512 428.032h382.976v61.44H320.512zM320.512 616.448h320.512v61.44H320.512z" fill="#00EAFF" p-id="1612" data-spm-anchor-id="a313x.7781069.0.i3" class="selected"></path>
+                        <path d="M802.816 937.984H221.184l-40.96-40.96V126.976l40.96-40.96h346.112l26.624 10.24 137.216 117.76 98.304 79.872 15.36 31.744v571.392l-41.984 40.96z m-540.672-81.92h500.736V345.088L677.888 276.48 550.912 167.936H262.144v688.128z" fill="#3C8CE7" p-id="1613" data-spm-anchor-id="a313x.7781069.0.i0" class=""></path>
+                    </svg>
+                    订单详情
+                </div>
+
+                <div class="layui-fluid layadmin-maillist-fluid">
+                    <div class="layui-row layui-col-space15">
+                        <div class="layui-col-md12 layui-col-sm6">
+                            <div class="layadmin-contact-box">
+                                <div class="layui-col-md4 layui-col-sm6">
+                                    <a href="{:url('/goods/' . $order.goods_id)}" class="cover">
+                                        <div>
+                                            <img src="{$order.goods_cover}" style="max-height: 200px;">
+                                        </div>
+                                    </a>
+                                </div>
+
+                                <div class="layui-col-md8 layui-col-sm6">
+                                    <a href="{:url('/goods/' . $order.goods_id)}" style="display: inline-block; padding: 10px 0; font-size: 16px;">
+                                        <strong>{$order.goods_name}</strong>
+                                    </a>
+                                    {if condition="$order.goods_type == 3"}
+                                    {php}$kami = explode("\r\n", $order['kami']);{/php}
+                                    {volist name="$kami" id="vo"}
+                                    <img class="kami-img" src="{$vo}" alt="{$vo}" />
+                                    {/volist}
+                                    {else /}
+                                    <textarea disabled="" spellcheck="false" class="order-info" id="kami">{$kami}</textarea>
+                                    <button class="layui-btn layui-btn-primary" id="copy">一键复制</button>
+                                    {/if}
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                {include file="content/template/default/order_empty.html" /}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    document.write('<script src="/assets/shop/dist/clipboard.min.js"><\/script>');
+
+    window.onload = function(){
+        var kami = $('#kami').html();
+        var clipboard = new Clipboard('#copy', {
+            text: function() {
+                return kami;
+            }
+        });
+        clipboard.on('success', function(e) {
+            layer.msg("复制成功");
+        });
+
+        clipboard.on('error', function(e) {
+            layer.msg("复制失败");
+            console.log(e);
+        });
+    }
+
+</script>
+{include file="content/template/default/footer.html" /}
+
+
