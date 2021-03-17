@@ -3,6 +3,7 @@
 namespace app\admin\controller\docking;
 
 use app\common\controller\Backend;
+use fast\Http;
 use think\Cache;
 use think\Db;
 use think\Exception;
@@ -14,7 +15,8 @@ use think\exception\ValidateException;
  *
  * @icon fa fa-circle-o
  */
-class DockingSite extends Backend {
+class DockingSite extends Backend
+{
 
     /**
      * DockingSite模型对象
@@ -22,7 +24,8 @@ class DockingSite extends Backend {
      */
     protected $model = null;
 
-    public function _initialize() {
+    public function _initialize()
+    {
         parent::_initialize();
         $this->model = new \app\admin\model\docking\DockingSite;
 
@@ -48,7 +51,8 @@ class DockingSite extends Backend {
 
     }
 
-    public function import(){
+    public function import()
+    {
         parent::import();
     }
 
@@ -61,9 +65,11 @@ class DockingSite extends Backend {
 
     /**
      * 同步商品
-    */
-    public function sync(){
+     */
+    public function sync()
+    {
         $site_id = $this->request->param('site_id'); //对接站id
+        $site = db::name('docking_site')->where(['id' => $site_id])->find();
         $goods_id = $this->request->param('ids'); //对接站商品id
         if ($this->request->isPost()) {
             $params = $this->request->post("row/a");
@@ -85,7 +91,7 @@ class DockingSite extends Backend {
                     $params['site_id'] = $site_id; //对接站点id
                     $params['remote_id'] = $goods_id; //对接站商品id
 
-                    if($params['price'] < $params['buy_price']){
+                    if ($params['price'] < $params['buy_price']) {
                         throw new Exception('价格不能低于进货价');
                     }
 
@@ -94,7 +100,7 @@ class DockingSite extends Backend {
                         'remote_id' => $params['remote_id']
                     ];
                     $goods = db::name('goods')->where($where)->find();
-                    if($goods){
+                    if ($goods) {
                         throw new Exception('您不能重复对接该商品');
                     }
                     $params['stock'] = -1; //该库存代表对接站没有库存字段，则显示正常字样
@@ -129,6 +135,11 @@ class DockingSite extends Backend {
         $key = array_search($goods_id, array_column($list, 'id'));
         $goods = $list[$key];
 
+
+        $url = "{$site['domain']}index.php?m=home&c=goods&a=detail&id={$goods['id']}&goods_type={$goods['goods_type']}";
+
+        $order_params = Dock::getParams("jiuwu", $url, $site);
+
         //获取加价模板列表
         $increase = db::name('docking_increase')->select();
 
@@ -139,7 +150,7 @@ class DockingSite extends Backend {
             'goods' => $goods,
             'increase' => $increase,
             'docking_site' => $docking_site,
-
+            'order_params' => $order_params,
         ]);
 
 //        echo '<pre>'; print_r($goods);die;
@@ -147,19 +158,79 @@ class DockingSite extends Backend {
         return view();
     }
 
+
+    public function demo() {
+        //开始模拟登录
+        $url = "http://www.pinow.cn/index.php?m=Home&c=User&a=login";
+        $cookie = dirname(__FILE__) . '/jiuwu' . time() . '.txt';
+
+        $post = "username=vsiis&username_password=97882032&id=392&goods_type=765";
+
+
+        $curl=curl_init();//初始化curl模块
+        curl_setopt($curl,CURLOPT_URL,$url);//登录提交的地址
+        curl_setopt($curl,CURLOPT_HEADER,false);//不自动输出头信息
+        curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);//不自动输出数据
+        curl_setopt($curl,CURLOPT_COOKIEJAR,$cookie);//设置Cookie信息保存在指定的文件中
+        curl_setopt($curl,CURLOPT_POST,1);//post方式提交
+        curl_setopt($curl,CURLOPT_POSTFIELDS,$post);//要提交的信息
+        curl_exec($curl);//执行cURL
+        curl_close($curl);//关闭cURL资源，并且释放系统资源
+
+
+        $ch=curl_init();
+        curl_setopt($ch,CURLOPT_URL,"http://www.pinow.cn/index.php?m=Home&c=Goods&a=detail&id=392&goods_type=765");
+        curl_setopt($ch,CURLOPT_HEADER,false);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+        curl_setopt($ch,CURLOPT_COOKIEFILE,$cookie);//读取cookie
+        $html = curl_exec($ch);//执行cURL抓取页面内容
+        curl_close($ch);
+
+        unlink($cookie);
+
+        $html=preg_replace("/[\t\n\r]+/","",$html);
+
+        $partern = '/<form role="form" method="post" class="order_post_form" action=".*?">(.*?)<\/form>/';
+
+        preg_match_all($partern,$html,$result);
+
+        $html = $result[1][0];
+
+        $partern = '/<li>(.*?)<input type="hidden"/';
+
+        preg_match_all($partern,$html,$result);
+
+        $html = $result[1][0];
+
+        $partern = '/<span class="fixed-width-right-80">(.*?)：<\/span>/';
+
+        preg_match_all($partern,$html,$result);
+
+        $params_title = $result[1];
+
+        $partern = '/<input.*?name="(.*?)".*?>/';
+
+        preg_match_all($partern,$html,$result);
+
+        $params_name = $result[1];
+
+
+    }
+
+
     /**
      * 通过对接站id获取商品列表
-    */
-    public function get_goods_list($id){
+     */
+    public function get_goods_list($id) {
         $site = db::name('docking_site')->where(['id' => $id])->find();
         $info = json_decode($site['info'], true);
 
         $domain = $site['domain'];
 
-        if(Cache::has('goods_list_' . $domain)){
+        if (Cache::has('goods_list_' . $domain)) {
             $list = Cache::get('goods_list_' . $domain);
-        }else{
-            if($site['type'] == 'jiuwu'){
+        } else {
+            if ($site['type'] == 'jiuwu') {
                 $url = $domain . "index.php?m=home&c=api&a=get_goods_lists";
                 $account = $info['account'];
                 $password = md5($info['password']);
@@ -177,7 +248,8 @@ class DockingSite extends Backend {
     /**
      * 商品列表
      */
-    public function goods_list(){
+    public function goods_list()
+    {
 
         $ids = $this->request->param('ids');
 
@@ -201,41 +273,44 @@ class DockingSite extends Backend {
         return $this->view->fetch();
     }
 
-    public function handle_list_wujiu($list){
-        foreach($list as &$val){
+    public function handle_list_wujiu($list)
+    {
+        foreach ($list as &$val) {
             $price = $val['goods_unitprice'];
             $price_info = $this->calc_price($price, 1, $val['minbuynum_0']);
             $val['num'] = $price_info['num'];
             $val['price'] = upDecimal($price_info['price']);
             $look_num = $this->look_num($val['num']);
-            $val['look_price'] = $look_num . $val['unit'] . '=' . $val['price'] .'元';
+            $val['look_price'] = $look_num . $val['unit'] . '=' . $val['price'] . '元';
         }
 
         return $list;
     }
 
-    public function look_num($num){
-        if($num == 1000){
+    public function look_num($num)
+    {
+        if ($num == 1000) {
             return '1千';
-        }else if($num == 10000){
+        } else if ($num == 10000) {
             return '1万';
-        }else if($num == 100000){
+        } else if ($num == 100000) {
             return '10万';
-        }else{
+        } else {
             return $num;
         }
     }
 
     /**
      * 计算点数价格
-    */
-    public function calc_price($price, $num = 1, $min){
+     */
+    public function calc_price($price, $num = 1, $min)
+    {
         $num *= 10;
         $price *= 10;
 
-        if($price < 0.1 || $num <= $min){
+        if ($price < 0.1 || $num <= $min) {
             return $this->calc_price($price, $num, $min);
-        }else{
+        } else {
             $num /= 10;
             $price /= 10;
         }
@@ -247,11 +322,11 @@ class DockingSite extends Backend {
     }
 
 
-
     /**
      * 添加
      */
-    public function add() {
+    public function add()
+    {
         if ($this->request->isPost()) {
             $params = $this->request->post("row/a");
             if ($params) {
@@ -296,7 +371,8 @@ class DockingSite extends Backend {
     /**
      * 编辑
      */
-    public function edit($ids = null) {
+    public function edit($ids = null)
+    {
         $row = $this->model->get($ids);
         if (!$row) {
             $this->error(__('No Results were found'));
@@ -342,7 +418,7 @@ class DockingSite extends Backend {
             $this->error(__('Parameter %s can not be empty', ''));
         }
         $info = json_decode($row->info, true);
-        if($row->type == 'jiuwu'){
+        if ($row->type == 'jiuwu') {
             $row->account = empty($info['account']) ? '' : $info['account'];
             $row->password = empty($info['password']) ? '' : $info['password'];
         }
@@ -351,8 +427,9 @@ class DockingSite extends Backend {
         return $this->view->fetch();
     }
 
-    public function handle_params($params){
-        if($params['type'] == 'jiuwu'){ //玖伍社区
+    public function handle_params($params)
+    {
+        if ($params['type'] == 'jiuwu') { //玖伍社区
             $info = [
                 'account' => $params['account'],
                 'password' => $params['password']
@@ -363,7 +440,6 @@ class DockingSite extends Backend {
         }
         return $params;
     }
-
 
 
 }
