@@ -18,7 +18,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             var table = $("#table");
 
             table.on('post-body.bs.table',function(){
-                $(".btn-goods-list").data("area",["1000px","670px"]);
+                $(".btn-goods-list").data("area",["1000px","720px"]);
             })
 
             // 初始化表格

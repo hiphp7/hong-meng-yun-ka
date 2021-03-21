@@ -91,20 +91,42 @@ class DockingSite extends Backend
                     $params['site_id'] = $site_id; //对接站点id
                     $params['remote_id'] = $goods_id; //对接站商品id
 
-                    if ($params['price'] < $params['buy_price']) {
-                        throw new Exception('价格不能低于进货价');
+
+                    if($params['num'] < $params['min_buy_num']){
+                        throw new Exception("默认数量不能小于最小下单量");
+                    }
+                    if($params['num'] > $params['max_buy_num']){
+                        throw new Exception("默认数量不能大于最大下单量");
                     }
 
-                    $where = [
-                        'site_id' => $params['site_id'],
-                        'remote_id' => $params['remote_id']
-                    ];
-                    $goods = db::name('goods')->where($where)->find();
-                    if ($goods) {
-                        throw new Exception('您不能重复对接该商品');
+                    if ($params['price'] < $params['buy_price']) {
+                        throw new Exception('售价不能低于进货价');
                     }
+
+                    if($params['default_num'] / $params['buy_price'] < $params['num'] / $params['price']){
+                        throw new Exception('售价不能低于进货价');
+                    }
+
+                    $order_params = unserialize(base64_decode($params['order_params']));
+
+                    $dock_data = [ //对接订单所需数据
+                        'order_params' => $order_params, //订单所需参数信息
+                        'num' => $params['num'], //购买数量
+                    ];
+                    $params['dock_data'] = json_encode($dock_data);
                     $params['stock'] = -1; //该库存代表对接站没有库存字段，则显示正常字样
                     $params['createtime'] = time();
+
+                    unset($params['order_params']);
+                    unset($params['num']);
+                    unset($params['default_num']);
+
+
+
+//                    echo '<pre>'; print_r($params);die;
+
+
+
 
 //                    print_r($params);die;
 
@@ -146,14 +168,16 @@ class DockingSite extends Backend
         //对接站信息
         $docking_site = db::name('docking_site')->where(['id' => $site_id])->find();
 
+
+
         $this->assign([
             'goods' => $goods,
             'increase' => $increase,
             'docking_site' => $docking_site,
-            'order_params' => $order_params,
+            'order_params' => base64_encode(serialize($order_params)),
         ]);
 
-//        echo '<pre>'; print_r($goods);die;
+//        echo '<pre>'; print_r($order_params);die;
 
         return view();
     }

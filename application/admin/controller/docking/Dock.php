@@ -81,13 +81,21 @@ class Dock{
 
         $params_name = $result[1];
 
+        $partern = '/<input.*?placeholder="(.*?)".*?>/';
+
+        preg_match_all($partern,$html,$result);
+
+
+        $params_placeholder = $result[1];
+
         $order_params = [];
 
         foreach($params_name as $key => $val){
             if($val != 'need_num_0'){
                 $order_params[] = [
                     'name' => $val,
-                    'title' => $params_title[$key]
+                    'title' => $params_title[$key],
+                    'placeholder' => $params_placeholder[$key]
                 ];
             }
         }
