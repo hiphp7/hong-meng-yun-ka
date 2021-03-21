@@ -7,7 +7,9 @@ use think\Db;
 use app\shop\controller\pay\Epay;
 
 
-
+/**
+ * 提交支付订单
+*/
 class Buy extends Base {
 
 
