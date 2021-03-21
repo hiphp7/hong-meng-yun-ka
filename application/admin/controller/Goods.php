@@ -3,7 +3,7 @@
 namespace app\admin\controller;
 
 use app\common\controller\Backend;
-use app\shop\controller\Hm;
+use app\common\controller\Hm;
 use think\Db;
 use think\Exception;
 use think\exception\PDOException;

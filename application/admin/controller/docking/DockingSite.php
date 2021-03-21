@@ -113,11 +113,13 @@ class DockingSite extends Backend
                     $dock_data = [ //对接订单所需数据
                         'order_params' => $order_params, //订单所需参数信息
                         'num' => $params['num'], //购买数量
+                        'goods_type' => $params['goods_type'],
                     ];
                     $params['dock_data'] = json_encode($dock_data);
                     $params['stock'] = -1; //该库存代表对接站没有库存字段，则显示正常字样
                     $params['createtime'] = time();
 
+                    unset($params['goods_type']);
                     unset($params['order_params']);
                     unset($params['num']);
                     unset($params['default_num']);

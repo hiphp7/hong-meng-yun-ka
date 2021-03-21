@@ -5,6 +5,7 @@ namespace app\shop\controller;
 use app\common\controller\Fun;
 use app\shop\controller\pay\Epay;
 use app\shop\controller\pay\Vpay;
+use fast\Http;
 use think\Db;
 use think\Controller;
 
@@ -142,42 +143,19 @@ class Notify extends Controller {
                 }
                 $goods = db::name('goods')->where(['id' => $order['goods_id']])->find();
                 $timestamp = time();
-                /**
-                 * 1, 记录用户账单，增加用户消费金额
-                 * 2，增加商品销量和商品销售额
-                 * 3，重置商品库存
-                 * 4，修改订单支付状态
-                 * 5，修改订单发货状态（判断商品是否自动发货）
-                 */
-                //1， 记录用户账单
-                if($order["uid"] > 0) {
-                    $bill_insert = [
-                        'uid' => $order['uid'],
-                        'description' => '购买商品 ' . $goods['name'] . ' x' . $order['goods_num'],
-                        'createtime' => $timestamp,
-                        'value' => '-' . sprintf("%.2f", $order['money']),
-                        'type' => 'goods', //购买商品
-                    ];
-                    db::name('money_bill')->insert($bill_insert);
-                    db::name("user")->where(["id" => $order["uid"]])->setInc("consume", $order["money"]);
-                }
+
+                //1, 记录用户账单，增加用户消费金额
+                $this->record_user_bill($order, $goods, $timestamp);
                 //2，增加商品销量和商品销售额，减去商品库存
-                db::name('goods')->where(['id' => $goods['id']])->setInc('sales');
-                db::name('goods')->where(['id' => $goods['id']])->setInc('sales_money', $order['money']);
-                db::name('goods')->where(['id' => $goods['id']])->setDec('stock', $order['goods_num']); //减去商品库存
-                $status = $goods['deliver'] == 0 ? 2 : 1; //自动发货=0 已发货=2 手动发货=1 代发货=1
-                $update = [
-                    'pay' => 1, //支付状态
-                    'status' => $status, //发货状态
-                    'paytime' => $timestamp, //支付时间
-                ];
-
-                if ($goods['deliver'] == 0) { //商品类型是自动发货时
-                    $kami = $this->getKami($goods['id'], $order['goods_num']); //从商品库存中拿出用户购买的卡密并返回剩余卡密
-                    $update['kami'] = $kami;
+                $this->handle_goods($goods, $order);
+                //3, 给商品发货或去对接站购买商品
+                if($goods['type'] == 'own'){
+                    $this->handel_order_own($goods, $order, $timestamp);
+                }
+                if($goods['type'] == 'jiuwu'){
+                    $this->handel_order_jiuwu($goods, $order);
                 }
 
-                db::name('order')->where(['id' => $order['id']])->update($update); //修改订单记录
                 db::commit();
                 echo 'success';
                 die;
@@ -190,6 +168,70 @@ class Notify extends Controller {
 
         }
 
+    }
+
+    //处理玖伍社区订单
+    public function handel_order_jiuwu($goods, $order){
+//        http://8.95jw.cn/index.php?m=home&c=goods&a=detail&id=4196&goods_type=156
+        $site = db::name('docking_site')->where(['id' => $goods['site_id']])->find();
+        $site_info = json_decode($site['info'], true);
+        $url = $site["domain"] . "index.php?m=home&c=order&a=add";
+        $params = [
+            "Api_UserName" => $site['account'],
+            'Api_UserMd5Pass' => md5($site['password']),
+            'goods_id' => $goods['remote_id'],
+            'goods_type' => $site['goods_type'],
+        ];
+        $attach = json_decode($order['accach'], true);
+        foreach($attach as $key => $val){
+            $params[$key] = $val;
+        }
+        $result = Http::post($url, $params);
+        db::name('test')->insert(['content' => $result]);
+        $result = json_decode($result, true);
+        if($result['status'] == 1){
+
+        }
+    }
+
+    //处理自营订单
+    public function handel_order_own($goods, $order, $timestamp){
+        $status = $goods['deliver'] == 0 ? 2 : 1; //自动发货=0 已发货=2 手动发货=1 代发货=1
+        $update = [
+            'pay' => 1, //支付状态
+            'status' => $status, //发货状态
+            'paytime' => $timestamp, //支付时间
+        ];
+
+        if ($goods['deliver'] == 0) { //商品类型是自动发货时
+            $kami = $this->getKami($goods['id'], $order['goods_num']); //从商品库存中拿出用户购买的卡密并返回剩余卡密
+            $update['kami'] = $kami;
+        }
+
+        db::name('order')->where(['id' => $order['id']])->update($update); //修改订单记录
+    }
+
+    //商品付款后更新商品销量库存等信息
+    public function handel_goods($goods, $order){
+        db::name('goods')->where(['id' => $goods['id']])->setInc('sales'); //增加商品销量
+        db::name('goods')->where(['id' => $goods['id']])->setInc('sales_money', $order['money']); //增加商品销售额
+        if($goods['type'] == 'own'){
+            db::name('goods')->where(['id' => $goods['id']])->setDec('stock', $order['goods_num']); //减去商品库存
+        }
+
+    }
+
+    //记录用户账单
+    public function record_user_bill($order, $goods, $timestamp){
+        $bill_insert = [
+            'uid' => $order['uid'],
+            'description' => '购买商品 ' . $goods['name'] . ' x' . $order['goods_num'],
+            'createtime' => $timestamp,
+            'value' => '-' . sprintf("%.2f", $order['money']),
+            'type' => 'goods', //购买商品
+        ];
+        db::name('money_bill')->insert($bill_insert);
+        db::name("user")->where(["id" => $order["uid"]])->setInc("consume", $order["money"]);
     }
 
 
