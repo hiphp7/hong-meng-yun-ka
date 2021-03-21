@@ -90,6 +90,7 @@ class DockingSite extends Backend
                     }
                     $params['site_id'] = $site_id; //对接站点id
                     $params['remote_id'] = $goods_id; //对接站商品id
+                    $params['type'] = $site['type'];
 
 
                     if($params['num'] < $params['min_buy_num']){

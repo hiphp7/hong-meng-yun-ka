@@ -1,6 +1,4 @@
 {php}
-$goods_id = input('id');
-$goods = goods_info($goods_id); //获取商品信息
 {/php}
 {include file="content/template/default/header.html" /}
 <style>
@@ -72,29 +70,26 @@ $goods = goods_info($goods_id); //获取商品信息
                                 </label>
                             </div>
 
-                            {foreach name="goods.attach" item="vo" key="k" }
+                            {volist name="goods.order_params" id="vo"}
                             <div class="entry">
-                                <span class="l-msg">{$k}：</span>
+                                <span class="l-msg">{$vo.title}：</span>
                                 <label class="input">
-                                    <input type="text" name="attach_{$k}" required placeholder="{$vo}">
+                                    <input type="text" name="attach_{$vo.name}" required placeholder="{$vo.placeholder}">
                                 </label>
                             </div>
-                            {/foreach}
+                            {/volist}
 
-                            
+                        </div>
+                        <div class="layui-col-sm12 buy">
+                            {if condition="($goods.type == 'own' && $goods.stock > 0) || $goods.type == 'jiuwu'"}
+                            <button><span>立即下单</span></button>
+                            {/if}
+                            {if condition="$goods.type == 'own' && $goods.stock <= 0"}
+                            <div class="no-stock" style=""><span>库存不足</span></div>
+                            {/if}
                         </div>
                     </div>
-                    <div class="layui-col-sm12 buy" style="text-align: center">
-                        {if condition="$goods.stock > 0"}
-                        <button>
-                            <span>立即下单</span>
-                        </button>
-                        {else /}
-                        <div class="no-stock" style="">
-                            <span>库存不足</span>
-                        </div>
-                        {/if}
-                    </div>
+
                 </form>
             </div>
         </div>

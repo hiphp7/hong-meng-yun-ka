@@ -31,7 +31,7 @@ class Epay extends Base {
     }
 
     /**
-     * 码支付
+     * 易支付
      * @order 订单信息
      * @pay_type 支付类型
      */

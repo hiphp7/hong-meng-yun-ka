@@ -44,6 +44,14 @@ class Index extends Backend {
                 $this->success('', null, ['menulist' => $menulist, 'navlist' => $navlist]);
             }
         }
+
+//        echo '<pre>'; print_r($fixedmenu);die;
+//        echo '<pre>'; print_r($menulist);die;
+//        echo '<pre>'; print_r($menulist);die;
+//        echo '<pre>'; print_r($menulist);die;
+
+
+
         $this->view->assign('menulist', $menulist);
         $this->view->assign('navlist', $navlist);
         $this->view->assign('fixedmenu', $fixedmenu);
@@ -96,9 +104,6 @@ class Index extends Backend {
         if ($this->auth->autologin()) {
             $this->redirect($url);
         }
-        $background = Config::get('fastadmin.login_background');
-        $background = $background ? (stripos($background, 'http') === 0 ? $background : config('site.cdnurl') . $background) : '';
-        $this->view->assign('background', $background);
         $this->view->assign('title', __('Login'));
         Hook::listen("admin_login_init", $this->request);
         return $this->view->fetch();

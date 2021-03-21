@@ -5,7 +5,8 @@ namespace app\shop\controller;
 use app\shop\controller\pay\Vpay;
 use think\Db;
 use app\shop\controller\pay\Epay;
-
+use app\shop\controller\pay\Alipay;
+use app\common\controller\Hm;
 
 /**
  * 提交支付订单
@@ -26,9 +27,10 @@ class Buy extends Base {
     /**
      * 确认订单页面
     */
-    public function confirm($order_no = null){
+    public function confirm(){
 
         $post = $this->request->param();
+        $goods = Hm::getGoodsInfo($post['goods_id']);
 
         $attach = []; //订单附加数据
         foreach($post as $key => $val){
@@ -41,6 +43,7 @@ class Buy extends Base {
         $this->assign([
             'post' => $post,
             'attach' => $attach,
+            'goods' => $goods,
 
         ]);
 
@@ -56,7 +59,7 @@ class Buy extends Base {
         if (!$goods) {
             $this->error('商品不存在');
         }
-        if ($post['goods_num'] > $goods['stock']) {
+        if ($goods['type'] == 'own' && $post['goods_num'] > $goods['stock']) {
             $this->error('库存不足，请联系客服添加库存');
         }
         $user = Hm::getUser(); //获取当前用户信息
@@ -90,6 +93,9 @@ class Buy extends Base {
             'attach' => json_encode($attach), //附加内容
         ];
 
+//        echo '<pre>';
+//        print_r($insert);die;
+
         if ($order_id == 0) { //新订单
             $id = db::name('order')->insertGetId($insert);
             $order = $insert;
@@ -104,18 +110,91 @@ class Buy extends Base {
         }
 
 
-        //订单已写入 开始支付
-
+        //获取用户的支付方式
+        $pay_type = $this->get_pay_type($order['pay_type']);
+//        echo $pay_type;die;
 
         //开始判断商品来源
         if ($goods['type'] == 'own') { //自营产品
             return $this->pay_own($order, $goods, $user);
-        } elseif ($goods['type'] == 'xxx') { //其他对接商品 未完成
-            $this->pay_azf($post, $goods, $user);
+        } elseif ($goods['type'] == 'jiuwu') { //其他对接商品 未完成
+            $this->pay_jiuwu($order, $goods, $pay_type);
         } else {
             $this->error('系统错误！');
         }
 
+
+    }
+
+
+
+    /**
+     * 购买玖伍社区产品
+     * $post 订单信息
+     * $goods 商品信息
+     */
+    public function pay_jiuwu($order, $goods, $pay_type) {
+        if($order['pay_type'] == 'alipay' || $order['pay_type'] == 'alipay_wap'){
+            if($pay_type == 'alipay_pc'){
+                $_pay = db::name('pay')->where(['type' => 'alipay'])->find();
+                $payInfo = json_decode($_pay['value'], true);
+                $alipay = new Alipay();
+                $alipay->pay($payInfo, $goods, $order, 'pc', 'order');
+            }
+            if($pay_type == 'alipay_wap'){
+                $_pay = db::name('pay')->where(['type' => 'alipay'])->find();
+                $payInfo = json_decode($_pay['value'], true);
+                $alipay = new Alipay();
+                $alipay->pay($payInfo, $goods, $order, 'wap', 'order'); //手机网站支付
+            }
+            if($pay_type == 'alipay_sm'){
+                $_pay = db::name('pay')->where(['type' => 'alipay'])->find();
+                $payInfo = json_decode($_pay['value'], true);
+                $alipay = new Alipay();
+                $alipay->pay($payInfo, $goods, $order, 'sm', 'order'); //当面付
+            }
+            if($pay_type == 'vpay'){ //发起v免签支付
+                $vpay = new Vpay();
+                $vpay->pay($order, $goods, 2);
+            }
+
+            if($pay_type == 'epay'){ //发起易支付
+                $epay = new Epay();
+                $epay->pay($order, $goods, 'alipay');
+            }
+
+
+            if($pay_type == 'codepay'){ //发起码支付
+                $codepay = new Codepay();
+                $codepay->pay($order, 1);
+            }
+        }
+        if($order['pay_type'] == 'wxpay'){
+            if($pay_type == 'codepay'){
+                $codepay = new Codepay();
+                $codepay->pay($order, 3);
+            }
+            if($pay_type == 'epay'){
+                $epay = new Epay();
+                $epay->pay($order, $goods, 'wxpay');
+            }
+
+            if($pay_type == 'vpay'){
+                $vpay = new Vpay();
+                $vpay->pay($order, $goods, 1);
+            }
+        }
+
+        if($order['pay_type'] == 'qqpay'){
+            if($pay_type == 'codepay'){
+                $codepay = new Codepay();
+                $codepay->pay($order, 2);
+            }
+            if($pay_type == 'epay'){
+                $epay = new Epay();
+                $epay->pay($order, $goods, 'qqpay');
+            }
+        }
 
     }
 
@@ -182,8 +261,6 @@ class Buy extends Base {
         //支付配置列表
 		$pay_list = db::name('pay')->where(['status' => 1])->order('weigh desc')->select();
 
-//echo $order['pay_type'];die;
-//        echo $order['pay_type'];die;
         //支付宝
         if ($order['pay_type'] == 'alipay' || $order['pay_type'] == 'alipay_wap') { //支付宝付款
 
@@ -194,7 +271,6 @@ class Buy extends Base {
                 $alipay->pay($payInfo, $goods, $order, 'wap', 'order'); //手机网站支付
                 die;
             }
-//            echo '<pre>'; print_r($pay_list);die;
 
             // 区分出官方支付宝,码支付,易支付的优先级
             $pay_type = null;
@@ -374,6 +450,116 @@ class Buy extends Base {
             'info' => $info, 'goods_num' => $goods_num, 'order_id' => $order_id,
         ]);
         return view();
+    }
+
+
+    /**
+     * 通过用户选择的支付方式得出系统需要执行的支付方式
+     */
+    public function get_pay_type($u_pay_type){
+        //支付配置列表
+        $pay_list = db::name('pay')->where(['status' => 1])->order('weigh desc')->select();
+
+        if($u_pay_type == 'wxpay'){ //微信付款
+
+            // 区分出官方微信，码支付,易支付的微信付款优先级
+            $pay_type = null;
+            foreach($pay_list as $key => $val){
+                $payInfo = json_decode($val['value'], true); //支付账号配置信息
+
+                if($val['type'] == 'wxpay'){
+                    $pay_type = 'wxpay';
+                    break;
+                }
+
+                if($val['type'] == 'codepay' && isset($payInfo['wxpay'])){
+                    $pay_type = 'codepay';
+                    break;
+                }
+
+                if($val['type'] == 'epay' && isset($payInfo['wxpay'])){
+                    $pay_type = 'epay';
+                    break;
+                }
+
+                if($val['type'] == 'vpay' && isset($payInfo['wxpay'])){
+                    $pay_type = 'vpay';
+                    break;
+                }
+            }
+
+        }
+
+        //支付宝
+        if($u_pay_type == 'alipay_wap'){
+            $pay_type = 'alipay_wap';
+        }
+        if($u_pay_type == 'alipay'){
+            // 区分出官方支付宝,码支付,易支付的优先级
+            foreach($pay_list as $key => $val){
+                $payInfo = json_decode($val['value'], true); //支付账号配置信息
+
+                if($val['type'] == 'alipay'){
+                    $alipay = new Alipay();
+                    if(is_mobile()){
+
+                        if(empty($payInfo['sm'])){
+                            $pay_type = 'alipay_wap';
+                        }else{
+                            $pay_type = 'alipay_sm';
+                        }
+                    }else {
+                        if(empty($payInfo['pc'])){
+                            $pay_type = 'alipay_sm';
+                        }else{
+                            $pay_type = 'alipay_pc';
+                        }
+                    }
+                    break;
+                }
+
+                if($val['type'] == 'codepay' && isset($payInfo['alipay'])){
+                    $pay_type = 'codepay';
+                    break;
+                }
+
+                if($val['type'] == 'epay' && isset($payInfo['alipay'])){
+                    $pay_type = 'epay';
+                    break;
+                }
+
+                if($val['type'] == 'vpay' && isset($payInfo['wxpay'])){
+                    $pay_type = 'vpay';
+                    break;
+                }
+            }
+        }
+
+
+        if($u_pay_type == 'qqpay'){ //qq付款
+            // 区分出官方qq，码支付,易支付的qq付款优先级
+            $pay_type = null;
+            foreach($pay_list as $key => $val){
+                $payInfo = json_decode($val['value'], true); //支付账号配置信息
+
+                if($val['type'] == 'qqpay'){
+                    $pay_type = 'qqpay';
+                    break;
+                }
+
+                if($val['type'] == 'codepay' && isset($payInfo['qqpay'])){
+                    $pay_type = 'codepay';
+                    break;
+                }
+
+                if($val['type'] == 'epay' && isset($payInfo['qqpay'])){
+                    $pay_type = 'epay';
+                    break;
+                }
+            }
+
+        }
+        return $pay_type;
     }
 
 }

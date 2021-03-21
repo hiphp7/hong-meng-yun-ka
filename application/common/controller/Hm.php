@@ -5,6 +5,7 @@ namespace app\common\controller;
 
 use think\Cache;
 use think\Db;
+use think\Session;
 
 /**
  * 公共方法类
@@ -28,28 +29,71 @@ class Hm{
         if(!$goods){
             return null;
         }
+        $goods['images'] = explode(',', $goods['images']);
+        $goods['cover'] = $goods['images'][0];
 
         if($goods['type'] == 'own'){
-            $goods['images'] = explode(',', $goods['images']);
-            $goods['cover'] = $goods['images'][0];
-        }else if($goods['type'] == 'azf'){
-            $goods_azf_all = self::getGoodsAzfAll();
-            $azf_ids = array_column($goods_azf_all, 'id');
 
-            $key = array_search($goods['remote_id'], $azf_ids);
-            if($key !== false){
-                $azf_goods_info = $goods_azf_all[$key];
-//            self::pre($azf_goods_info);
-                $goods['azf_price'] = $azf_goods_info['goodsprice'];
-                $goods['name'] = $azf_goods_info['goodsname'];
-                $goods['cover'] = $azf_goods_info['imgurl'];
-                $goods['sales'] = $azf_goods_info['salesvolume'];
-                $goods['details'] = $azf_goods_info['details'];
-                $goods['stock'] = $azf_goods_info['stock'];
+            $attach = [];
+            if($goods['attach_id'] > 0 && $goods['deliver'] == 1){
+                $attach = db::name('attach')->where(['id' => $goods['attach_id']])->find();
+                if($attach){
+                    $attach = json_decode($attach['value_json'], true);
+                }
             }
-
+            $goods['attach'] = $attach;
+        }
+        if($goods['type'] == 'jiuwu'){
+            $dock_data = json_decode($goods['dock_data'], true);
+            $goods['order_params'] = empty($dock_data['order_params']) ? [] : $dock_data['order_params'];
         }
         return $goods;
+    }
+
+    /**
+     * 获取当前登录用户或游客信息
+     */
+    static public function getUser(){
+        if(session::has('uid')){ //已登录用户
+            $user = db::name('user')->where(['id' => session::get('uid')])->find();
+            if(!$user){
+                session::delete('uid');
+                self::getUser();
+            }
+        }else{ //游客
+            if(session::has('tourist_id')){ //已生成游客id
+                $user = db::name('user')->where(['id' => session::get('tourist_id')])->find();
+                if(!$user){
+                    session::delete('tourist_id');
+                    self::getUser();
+                }
+            }else{ //未生成游客id
+                $tourist = cookie('tourist');
+                if($tourist){ //老游客查找
+                    $user = db::name('user')->where(['tourist' => $tourist])->find();
+                    if(!$user){
+                        cookie('tourist', null);
+                        self::getUser();
+                    }
+                }else{ //新游客生成
+                    $timestamp = time();
+                    $tourist = $timestamp . mt_rand(1000, 9999); //游客标识
+                    cookie('tourist', $tourist, $timestamp + 365 * 24 * 3600);
+                    $tourist_num = db::name('options')->where(['option_name' => 'tourist_num'])->value('option_content');
+                    $tourist_num++;
+                    db::name('options')->where(['option_name' => 'tourist_num'])->setInc('option_content');
+                    $insert = [
+                        'tourist' => $tourist,
+                        'nickname' => '游客' . $tourist_num,
+                        'createtime' => $timestamp
+                    ];
+                    db::name('user')->insert($insert);
+                    $user = db::name('user')->where(['tourist' => $tourist])->find();
+                }
+                session::set('tourist_id', $user['id']);
+            }
+        }
+        return $user;
     }
 
 

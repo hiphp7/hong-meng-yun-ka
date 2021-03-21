@@ -1,7 +1,6 @@
 <?php
 
 namespace app\shop\controller;
-use app\common\controller\Fun;
 use app\common\controller\Hm;
 use think\Db;
 
@@ -17,6 +16,8 @@ class Goods extends Base {
         if(!$goods){
             $this->error('商品不存在！');
         }
+//        echo '<pre>'; print_r($goods);die;
+
         $this->assign([
             'title' => $goods['name'],
             'goods' => $goods

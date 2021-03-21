@@ -7,6 +7,7 @@ use fast\Http;
 use think\Config;
 use think\Controller;
 use think\Db;
+use app\shop\controller\Base;
 
 /**
  * 码支付 支付类

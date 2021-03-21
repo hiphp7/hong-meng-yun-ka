@@ -338,7 +338,6 @@ class Auth extends \fast\Auth {
      */
     public function getSidebar($params = [], $fixedPage = 'dashboard') {
         // 边栏开始
-        Hook::listen("admin_sidebar_begin", $params);
         $colorArr = ['red', 'green', 'yellow', 'blue', 'teal', 'orange', 'purple'];
         $colorNums = count($colorArr);
         $badgeList = [];
@@ -402,39 +401,17 @@ class Auth extends \fast\Auth {
         $referer && $referer['url'] = url($referer['url']);
 
         $select_id = $selected ? $selected['id'] : 0;
-        $menu = $nav = '';
-        if (Config::get('fastadmin.multiplenav')) {
-            $topList = [];
-            foreach ($ruleList as $index => $item) {
-                if (!$item['pid']) {
-                    $topList[] = $item;
-                }
-            }
-            $selectParentIds = [];
-            $tree = Tree::instance();
-            $tree->init($ruleList);
-            if ($select_id) {
-                $selectParentIds = $tree->getParentsIds($select_id, true);
-            }
-            foreach ($topList as $index => $item) {
-                $childList = Tree::instance()->getTreeMenu($item['id'], '<li class="@class" pid="@pid"><a href="@url@addtabs" addtabs="@id" url="@url" py="@py" pinyin="@pinyin"><i class="@icon"></i> <span>@title</span> <span class="pull-right-container">@caret @badge</span></a> @childlist</li>', $select_id, '', 'ul', 'class="treeview-menu"');
-                $current = in_array($item['id'], $selectParentIds);
-                $url = $childList ? 'javascript:;' : url($item['url']);
-                $addtabs = $childList || !$url ? "" : (stripos($url, "?") !== false ? "&" : "?") . "ref=addtabs";
-                $childList = str_replace('" pid="' . $item['id'] . '"', ' ' . ($current ? '' : 'hidden') . '" pid="' . $item['id'] . '"', $childList);
-                $nav .= '<li class="' . ($current ? 'active' : '') . '"><a href="' . $url . $addtabs . '" addtabs="' . $item['id'] . '" url="' . $url . '"><i class="' . $item['icon'] . '"></i> <span>' . $item['title'] . '</span> <span class="pull-right-container"> </span></a> </li>';
-                $menu .= $childList;
-            }
-        } else {
-            // 构造菜单数据
-            Tree::instance()->init($ruleList);
-            $menu = Tree::instance()->getTreeMenu(0, '<li class="@class"><a href="@url@addtabs" addtabs="@id" url="@url" py="@py" pinyin="@pinyin"><i class="@icon"></i> <span>@title</span> <span class="pull-right-container">@caret @badge</span></a> @childlist</li>', $select_id, '', 'ul', 'class="treeview-menu"');
-            if ($selected) {
-                $nav .= '<li role="presentation" id="tab_' . $selected['id'] . '" class="' . ($referer ? '' : 'active') . '"><a href="#con_' . $selected['id'] . '" node-id="' . $selected['id'] . '" aria-controls="' . $selected['id'] . '" role="tab" data-toggle="tab"><i class="' . $selected['icon'] . ' fa-fw"></i> <span>' . $selected['title'] . '</span> </a></li>';
-            }
-            if ($referer) {
-                $nav .= '<li role="presentation" id="tab_' . $referer['id'] . '" class="active"><a href="#con_' . $referer['id'] . '" node-id="' . $referer['id'] . '" aria-controls="' . $referer['id'] . '" role="tab" data-toggle="tab"><i class="' . $referer['icon'] . ' fa-fw"></i> <span>' . $referer['title'] . '</span> </a> <i class="close-tab fa fa-remove"></i></li>';
-            }
+        $nav = '';
+
+        // 构造菜单数据
+        Tree::instance()->init($ruleList);
+        $menu = Tree::instance()->getTreeMenu(0, '<li class="@class"><a href="@url@addtabs" addtabs="@id" url="@url" py="@py" pinyin="@pinyin"><i class="@icon"></i> <span>@title</span> <span class="pull-right-container">@caret @badge</span></a> @childlist</li>', $select_id, '', 'ul', 'class="treeview-menu"');
+
+        if ($selected) {
+            $nav .= '<li role="presentation" id="tab_' . $selected['id'] . '" class="' . ($referer ? '' : 'active') . '"><a href="#con_' . $selected['id'] . '" node-id="' . $selected['id'] . '" aria-controls="' . $selected['id'] . '" role="tab" data-toggle="tab"><i class="' . $selected['icon'] . ' fa-fw"></i> <span>' . $selected['title'] . '</span> </a></li>';
+        }
+        if ($referer) {
+            $nav .= '<li role="presentation" id="tab_' . $referer['id'] . '" class="active"><a href="#con_' . $referer['id'] . '" node-id="' . $referer['id'] . '" aria-controls="' . $referer['id'] . '" role="tab" data-toggle="tab"><i class="' . $referer['icon'] . ' fa-fw"></i> <span>' . $referer['title'] . '</span> </a> <i class="close-tab fa fa-remove"></i></li>';
         }
 
         return [$menu, $nav, $selected, $referer];

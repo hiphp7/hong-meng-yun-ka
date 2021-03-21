@@ -270,14 +270,6 @@ return [
         'login_failure_retry'   => true,
         //是否同一账号同一时间只能在一个地方登录
         'login_unique'          => false,
-        //是否开启IP变动检测
-        'loginip_check'         => true,
-        //登录页默认背景图
-        'login_background'      => "",
-        //是否启用多级菜单导航
-        'multiplenav'           => false,
-        //是否开启多选项卡(仅在开启多级菜单时起作用)
-        'multipletab'           => true,
         //后台皮肤,为空时表示使用skin-black-green
         'adminskin'             => 'skin-blue',
         //后台是否启用面包屑

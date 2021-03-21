@@ -409,8 +409,8 @@ input[type="number"] {
 }
 
 .buy {
-    text-align: center;
-    margin-top: 10px;
+    margin-top: 50px;
+    margin-left: 20px;
 }
 
 .buy button {

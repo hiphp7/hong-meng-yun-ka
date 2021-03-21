@@ -3,7 +3,7 @@
 use think\Db;
 use think\Cache;
 use think\Session;
-use app\shop\controller\Hm;
+use app\common\controller\Hm;
 
 
 
@@ -72,16 +72,12 @@ function pay_list(){
 /**
  * 获取单个商品信息
 */
-function goods_info($id, $field = "goods_id"){
-//    var_dump($id);die;
-    if($field == "goods_id"){
-        $goods = db::name('goods')->where(['id' => $id])->find();
-    }
-    if($field == "order_no"){
+function goods_info($id){
 
-    }
+    $goods = Hm::getGoodsInfo($id);
 
-//echo '<pre>'; print_r($goods);die;
+    $goods = db::name('goods')->where(['id' => $id])->find();
+
 
     $images = empty($goods["images"]) ? '' : explode(',', $goods['images']);
     $goods['cover'] = empty($images[0]) ? '' : $images[0];
@@ -93,8 +89,6 @@ function goods_info($id, $field = "goods_id"){
         }
     }
     $goods['attach'] = $attach;
-//    echo '<pre>';
-//    print_r($goods);die;
     return $goods;
 }
 

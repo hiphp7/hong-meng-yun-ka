@@ -68,51 +68,7 @@ class Hm{
     }
 
 
-    /**
-     * 获取当前登录用户或游客信息
-     */
-    static public function getUser(){
-        if(session::has('uid')){ //已登录用户
-            $user = db::name('user')->where(['id' => session::get('uid')])->find();
-            if(!$user){
-                session::delete('uid');
-                self::getUser();
-            }
-        }else{ //游客
-            if(session::has('tourist_id')){ //已生成游客id
-                $user = db::name('user')->where(['id' => session::get('tourist_id')])->find();
-                if(!$user){
-                    session::delete('tourist_id');
-                    self::getUser();
-                }
-            }else{ //未生成游客id
-                $tourist = cookie('tourist');
-                if($tourist){ //老游客查找
-                    $user = db::name('user')->where(['tourist' => $tourist])->find();
-                    if(!$user){
-                        cookie('tourist', null);
-                        self::getUser();
-                    }
-                }else{ //新游客生成
-                    $timestamp = time();
-                    $tourist = $timestamp . mt_rand(1000, 9999); //游客标识
-                    cookie('tourist', $tourist, $timestamp + 365 * 24 * 3600);
-                    $tourist_num = db::name('options')->where(['option_name' => 'tourist_num'])->value('option_content');
-                    $tourist_num++;
-                    db::name('options')->where(['option_name' => 'tourist_num'])->setInc('option_content');
-                    $insert = [
-                        'tourist' => $tourist,
-                        'nickname' => '游客' . $tourist_num,
-                        'createtime' => $timestamp
-                    ];
-                    db::name('user')->insert($insert);
-                    $user = db::name('user')->where(['tourist' => $tourist])->find();
-                }
-                session::set('tourist_id', $user['id']);
-            }
-        }
-        return $user;
-    }
+
 
 
     static public function pre($arr){
