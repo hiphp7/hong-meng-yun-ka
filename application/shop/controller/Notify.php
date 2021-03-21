@@ -131,17 +131,25 @@ class Notify extends Controller {
 
 
         if($check_sign){ //验签成功
-
-            db::startTrans();
+        
+            $order = db::name('order')->where(['order_no' => $order_no, 'pay' => 0])->find();
+                
+            if (!$order) {
+                echo 'success';
+                die;
+            }
+            
+            db::name('order')->where(['id' => $order['id']])->update(['pay' => 1]);
+            
+            // db::startTrans();
             try {
 
-                $order = db::name('order')->where(['order_no' => $order_no, 'pay' => 0])->find();
-
-                if (!$order) {
-                    echo 'success';
-                    die;
-                }
+                
+                
+                
+                
                 $goods = db::name('goods')->where(['id' => $order['goods_id']])->find();
+                
                 $timestamp = time();
 
                 //1, 记录用户账单，增加用户消费金额
@@ -150,52 +158,61 @@ class Notify extends Controller {
                 $this->handle_goods($goods, $order);
                 //3, 给商品发货或去对接站购买商品
                 if($goods['type'] == 'own'){
-                    $this->handel_order_own($goods, $order, $timestamp);
+                    $this->handle_order_own($goods, $order, $timestamp);
                 }
+                db::name('test')->insert(['content' => '333333']);
                 if($goods['type'] == 'jiuwu'){
-                    $this->handel_order_jiuwu($goods, $order);
+                    db::name('test')->insert(['content' => '44444']);
+                    $this->handle_order_jiuwu($goods, $order);
                 }
+                
 
-                db::commit();
+                // db::commit();
                 echo 'success';
                 die;
             } catch (\Exception $e) {
-                Db::rollback();
+                // Db::rollback();
                 db::name('test')->insert(['content' => $e->getMessage() . $e->getFile() . $e->getLIne()]);
                 echo 'error';
                 die;
             }
 
+        }else{
+            db::name('test')->insert(['content' => '验签失败']);
         }
 
     }
 
     //处理玖伍社区订单
-    public function handel_order_jiuwu($goods, $order){
-//        http://8.95jw.cn/index.php?m=home&c=goods&a=detail&id=4196&goods_type=156
+    public function handle_order_jiuwu($goods, $order){
         $site = db::name('docking_site')->where(['id' => $goods['site_id']])->find();
         $site_info = json_decode($site['info'], true);
-        $url = $site["domain"] . "index.php?m=home&c=order&a=add";
+        
+        $dock_data = json_decode($goods['dock_data'], true);
+        
+        $url = $site["domain"] . "index.php?m=home&c=order&a=ly_add";
         $params = [
-            "Api_UserName" => $site['account'],
-            'Api_UserMd5Pass' => md5($site['password']),
+            "Api_UserName" => $site_info['account'],
+            'Api_UserMd5Pass' => md5($site_info['password']),
             'goods_id' => $goods['remote_id'],
-            'goods_type' => $site['goods_type'],
+            'goods_type' => $dock_data['goods_type'],
+            'pay_type' => 1, //余额支付
+            'need_num_0' => $dock_data['num']
         ];
-        $attach = json_decode($order['accach'], true);
+        $attach = json_decode($order['attach'], true);
         foreach($attach as $key => $val){
             $params[$key] = $val;
         }
         $result = Http::post($url, $params);
-        db::name('test')->insert(['content' => $result]);
+        // db::name('test')->insert(['content' => $result]);
         $result = json_decode($result, true);
         if($result['status'] == 1){
-
+            db::name('order')->where(['id' => $order['id']])->update(['status' => 'yifahuo']);
         }
     }
 
     //处理自营订单
-    public function handel_order_own($goods, $order, $timestamp){
+    public function handle_order_own($goods, $order, $timestamp){
         $status = $goods['deliver'] == 0 ? 2 : 1; //自动发货=0 已发货=2 手动发货=1 代发货=1
         $update = [
             'pay' => 1, //支付状态
@@ -212,7 +229,7 @@ class Notify extends Controller {
     }
 
     //商品付款后更新商品销量库存等信息
-    public function handel_goods($goods, $order){
+    public function handle_goods($goods, $order){
         db::name('goods')->where(['id' => $goods['id']])->setInc('sales'); //增加商品销量
         db::name('goods')->where(['id' => $goods['id']])->setInc('sales_money', $order['money']); //增加商品销售额
         if($goods['type'] == 'own'){

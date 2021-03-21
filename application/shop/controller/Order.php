@@ -1,6 +1,7 @@
 <?php
 
 namespace app\shop\controller;
+use app\common\controller\Hm;
 
 use think\Db;
 

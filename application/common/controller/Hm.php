@@ -49,6 +49,53 @@ class Hm{
         }
         return $goods;
     }
+    
+    
+    /**
+     * 获取订单列表
+     */
+    static public function orderList($params = []) {
+
+        $params = empty($params) ? input() : $params;
+        $offset = $params['offset'];
+        $limit = $params['limit'];
+        $user = Hm::getUser();
+
+        $where = [
+            'uid' => $user['id'],
+        ];
+
+        $list = db::name('order')->where($where)->order('id desc')->limit($offset, $limit)->select();
+
+        $timestamp = time();
+
+        foreach($list as &$val){
+
+            if($val['status'] == -1){
+                $val['s'] = '订单已失效';
+            }elseif($val['pay'] == 0 && $timestamp - $val['createtime'] >= 600){
+                $val['s'] = '订单已失效';
+                db::name('order')->where(['id' => $val['id']])->update(['status' => -1]);
+                $val['status'] = -1;
+            }elseif($val['pay'] == 0){
+                $val['s'] = '待付款';
+            }elseif($val['pay'] == 1 && $val['status'] == 1){
+                $val['s'] = '待发货';
+            }elseif($val['pay'] == 1 && $val['status'] == 2){
+                $val['s'] = '待收货';
+            }elseif($val['pay'] == 1 && $val['status'] == 9){
+                $val['s'] = '交易完成';
+                $val['s_color'] = '#52c41a';
+            }else{
+                $val['s'] = '订单状态错误';
+                $val['s_color'] = '#d20707';
+            }
+            $val['timestamp'] = date('Y-m-d H:i:s', $val['createtime']);
+        }
+//        return $list;
+        return json_encode(['data' => $list, 'info' => 'ok', 'status' => 0]);
+
+    }
 
     /**
      * 获取当前登录用户或游客信息
