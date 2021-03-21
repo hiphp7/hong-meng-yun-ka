@@ -124,35 +124,17 @@ function goods_list(){
 			array_multisort($sort_field,SORT_ASC,$goods);
 		}
 
-
-
-
         $list[$key] = $val;
         $list[$key]['goods'] = [];
         $list[$key]['goods_num'] = 0;
         foreach($goods as $k => &$v){
             if($val['id'] == $v['category_id']){
-
-                if($v['stock'] == -1){
-                    $v['stock'] = '正常';
-                }
-
-				$cover_arr = explode(',', $v['images']);
-				$v["cover"] = isset($cover_arr[0]) ? $cover_arr[0] : "";
-				unset($v["images"]);
-
-                $list[$key]['goods'][] = $v;
+                $list[$key]['goods'][] = Hm::handle_goods($v);
                 unset($goods[$k]);
                 $list[$key]['goods_num']++;
-
-
-
-
             }
         }
     }
-
-
 
     return $list;
 

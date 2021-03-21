@@ -32,6 +32,10 @@ class Buy extends Base {
         $post = $this->request->param();
         $goods = Hm::getGoodsInfo($post['goods_id']);
 
+        if($goods['type'] == 'jiuwu' && $goods['max_int'] < $post['goods_num']){
+            $this->error('该商品最多可以购买' . $goods['max_int'] . '件');
+        }
+
         $attach = []; //订单附加数据
         foreach($post as $key => $val){
             if(strstr($key, 'attach_')){
@@ -117,7 +121,7 @@ class Buy extends Base {
         //开始判断商品来源
         if ($goods['type'] == 'own') { //自营产品
             return $this->pay_own($order, $goods, $user);
-        } elseif ($goods['type'] == 'jiuwu') { //其他对接商品 未完成
+        } elseif ($goods['type'] == 'jiuwu') { //玖伍社区
             $this->pay_jiuwu($order, $goods, $pay_type);
         } else {
             $this->error('系统错误！');

@@ -112,8 +112,9 @@ class DockingSite extends Backend
 
                     $dock_data = [ //对接订单所需数据
                         'order_params' => $order_params, //订单所需参数信息
-                        'num' => $params['num'], //购买数量
+                        'num' => $params['num'], //默认一单购买数量
                         'goods_type' => $params['goods_type'],
+                        'max_int' => intval($params['max_buy_num'] / $params['num']), //一次最多可购买单数
                     ];
                     $params['dock_data'] = json_encode($dock_data);
                     $params['stock'] = -1; //该库存代表对接站没有库存字段，则显示正常字样
@@ -125,13 +126,6 @@ class DockingSite extends Backend
                     unset($params['default_num']);
 
 
-
-//                    echo '<pre>'; print_r($params);die;
-
-
-
-
-//                    print_r($params);die;
 
                     $result = db::name('goods')->insert($params);
                     Db::commit();
@@ -186,64 +180,6 @@ class DockingSite extends Backend
     }
 
 
-    public function demo() {
-        //开始模拟登录
-        $url = "http://www.pinow.cn/index.php?m=Home&c=User&a=login";
-        $cookie = dirname(__FILE__) . '/jiuwu' . time() . '.txt';
-
-        $post = "username=vsiis&username_password=97882032&id=392&goods_type=765";
-
-
-        $curl=curl_init();//初始化curl模块
-        curl_setopt($curl,CURLOPT_URL,$url);//登录提交的地址
-        curl_setopt($curl,CURLOPT_HEADER,false);//不自动输出头信息
-        curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);//不自动输出数据
-        curl_setopt($curl,CURLOPT_COOKIEJAR,$cookie);//设置Cookie信息保存在指定的文件中
-        curl_setopt($curl,CURLOPT_POST,1);//post方式提交
-        curl_setopt($curl,CURLOPT_POSTFIELDS,$post);//要提交的信息
-        curl_exec($curl);//执行cURL
-        curl_close($curl);//关闭cURL资源，并且释放系统资源
-
-
-        $ch=curl_init();
-        curl_setopt($ch,CURLOPT_URL,"http://www.pinow.cn/index.php?m=Home&c=Goods&a=detail&id=392&goods_type=765");
-        curl_setopt($ch,CURLOPT_HEADER,false);
-        curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
-        curl_setopt($ch,CURLOPT_COOKIEFILE,$cookie);//读取cookie
-        $html = curl_exec($ch);//执行cURL抓取页面内容
-        curl_close($ch);
-
-        unlink($cookie);
-
-        $html=preg_replace("/[\t\n\r]+/","",$html);
-
-        $partern = '/<form role="form" method="post" class="order_post_form" action=".*?">(.*?)<\/form>/';
-
-        preg_match_all($partern,$html,$result);
-
-        $html = $result[1][0];
-
-        $partern = '/<li>(.*?)<input type="hidden"/';
-
-        preg_match_all($partern,$html,$result);
-
-        $html = $result[1][0];
-
-        $partern = '/<span class="fixed-width-right-80">(.*?)：<\/span>/';
-
-        preg_match_all($partern,$html,$result);
-
-        $params_title = $result[1];
-
-        $partern = '/<input.*?name="(.*?)".*?>/';
-
-        preg_match_all($partern,$html,$result);
-
-        $params_name = $result[1];
-
-
-    }
-
 
     /**
      * 通过对接站id获取商品列表
@@ -254,20 +190,16 @@ class DockingSite extends Backend
 
         $domain = $site['domain'];
 
-        if (Cache::has('goods_list_' . $domain)) {
-            $list = Cache::get('goods_list_' . $domain);
-        } else {
-            if ($site['type'] == 'jiuwu') {
-                $url = $domain . "index.php?m=home&c=api&a=get_goods_lists";
-                $account = $info['account'];
-                $password = md5($info['password']);
-                $url = $domain . 'index.php?m=home&c=api&a=user_get_goods_lists_details&Api_UserName=' . $account . '&Api_UserMd5Pass=' . $password;
-                $result = file_get_contents($url);
-                $result = json_decode($result, true);
-                $list = $result['user_goods_lists_details'];
-                $list = $this->handle_list_wujiu($list);
-                Cache::set('goods_list_' . $domain, $list);
-            }
+        if ($site['type'] == 'jiuwu') {
+            $url = $domain . "index.php?m=home&c=api&a=get_goods_lists";
+            $account = $info['account'];
+            $password = md5($info['password']);
+            $url = $domain . 'index.php?m=home&c=api&a=user_get_goods_lists_details&Api_UserName=' . $account . '&Api_UserMd5Pass=' . $password;
+            $result = file_get_contents($url);
+            $result = json_decode($result, true);
+            $list = $result['user_goods_lists_details'];
+            $list = $this->handle_list_wujiu($list);
+//            Cache::set('dock_goods_list' . $id, $list);
         }
         return $list;
     }
@@ -275,8 +207,7 @@ class DockingSite extends Backend
     /**
      * 商品列表
      */
-    public function goods_list()
-    {
+    public function goods_list(){
 
         $ids = $this->request->param('ids');
 

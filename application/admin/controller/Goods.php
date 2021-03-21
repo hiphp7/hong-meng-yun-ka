@@ -302,23 +302,7 @@ class Goods extends Backend {
 
             $list = $this->model->with('category')->where($where)->order($sort, $order)->paginate($limit);
             $rows = $list->items();
-            $azf_goods_all = Hm::getGoodsAzfAll();
 
-
-            $azf_ids = array_column($azf_goods_all, 'id');
-
-            foreach ($rows as $key => &$val) {
-                if ($val['type'] == 'azf') {
-                    $k = array_search($val['remote_id'], $azf_ids);
-                    if ($k) {
-                        $azf_goods_info = $azf_goods_all[$k];
-                        $val['name'] = $azf_goods_info['goodsname'];
-                        $val['images'] = $azf_goods_info['imgurl'];
-                    } else {
-                        $val['name'] = '商品：' . $val['remote_id'] . '已删除！';
-                    }
-                }
-            }
             $result = ["total" => $list->total(), "rows" => $rows];
             return json($result);
         }

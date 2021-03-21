@@ -120,7 +120,7 @@ $(function (w) {
         orderNumber++;
         if (orderNumber > stock){
             orderNumber = stock;
-            return layer.msg('购买数量不能多余库存数量');
+            return;
         }
         numDoc.val(orderNumber + '');
     })
@@ -134,6 +134,7 @@ $(function (w) {
         if (val > stock) {
             $(this).val(stock);
             orderNumber = stock;
+            return;
             return layer.msg('购买数量不能多余库存数量');
         }
         orderNumber = val;

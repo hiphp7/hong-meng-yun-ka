@@ -70,6 +70,7 @@
                                 </label>
                             </div>
 
+                            {if condition="isset($goods.order_params)"}
                             {volist name="goods.order_params" id="vo"}
                             <div class="entry">
                                 <span class="l-msg">{$vo.title}：</span>
@@ -78,6 +79,7 @@
                                 </label>
                             </div>
                             {/volist}
+                            {/if}
 
                         </div>
                         <div class="layui-col-sm12 buy">
@@ -114,7 +116,7 @@
 
 
 <script>
-    var stock = {$goods.stock}
+    var stock = {:$goods.type == 'own' ? $goods.stock : $goods.max_int}
 </script>
 
 

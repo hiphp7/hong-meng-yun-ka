@@ -12,23 +12,15 @@ use think\Session;
  */
 class Hm{
 
-    protected static $appid_azf = 10842;
-
-    protected static $secret_key_azf = 'd565e95e935e324441f730d46207e914';
-
-    protected static $api_azf = 'http://azf.5bma.cn/';
-
 
     static public function pre($arr){
         echo '<pre>'; print_r($arr);die;
     }
 
-    static public function getGoodsInfo($goods_id){
-        $goods = db::name('goods')->where(['id' => $goods_id])->find();
-
-        if(!$goods){
-            return null;
-        }
+    /**
+     * 处理商品信息
+    */
+    static public function handle_goods($goods){
         $goods['images'] = explode(',', $goods['images']);
         $goods['cover'] = $goods['images'][0];
 
@@ -46,7 +38,25 @@ class Hm{
         if($goods['type'] == 'jiuwu'){
             $dock_data = json_decode($goods['dock_data'], true);
             $goods['order_params'] = empty($dock_data['order_params']) ? [] : $dock_data['order_params'];
+            $goods['max_int'] = $dock_data['max_int'];
+            $goods['stock'] = '正常';
         }
+
+        return $goods;
+    }
+
+    /**
+     * 获取商品信息
+    */
+    static public function getGoodsInfo($goods_id){
+        $goods = db::name('goods')->where(['id' => $goods_id])->find();
+
+        if(!$goods){
+            return null;
+        }
+
+        $goods = self::handle_goods($goods);
+
         return $goods;
     }
     
@@ -144,61 +154,6 @@ class Hm{
     }
 
 
-    //获取指定的爱转发商品信息
-    static public function getGoodsAzfInfo($goods_azf_all = null, $id){
 
-        $ids = array_column($goods_azf_all, 'id');
-        $key = array_search($id, $ids);
-        $goods_azf_info = $goods_azf_all[$key];
-        return $goods_azf_info;
-    }
-
-    //获取所有爱转发商品信息
-    static public function getGoodsAzfAll(){
-        if(Cache::has('goods_azf')){
-            $goods_azf = Cache::get('goods_azf');
-        }else{
-            $data = [
-                'userid' => self::$appid_azf,
-            ];
-            $data['sign'] = self::getSign($data);
-
-//            $result = Http::get(self::$api_azf . 'dockapi/index/getallgoods.html', $data);
-            $result = [];
-            if(!$result){
-                return [];
-            }
-            $result = json_decode($result, true);
-            if($result['code'] == -1){
-                return [];
-            }
-            $list = $result['data'];
-
-            $goods_azf = [];
-            foreach($list as $val){
-                foreach($val['goods'] as &$v){
-                    $v['category_name'] = $val['groupname'];
-                    $v['goodsprice'] /= 100;
-                    $v['goodsprice'] = number_format($v['goodsprice'], 2);
-                    $goods_azf[] = $v;
-                }
-            }
-            Cache::set('goods_azf', $goods_azf, 3600);
-        }
-        return $goods_azf;
-    }
-
-
-    static private function getSign($data){
-        ksort($data);
-        $signtext='';
-        foreach ($data AS $key => $val) { //遍历POST参数
-            if ($val == '' || $key == 'sign') continue; //跳过这些不签名
-            if ($signtext) $signtext .= '&'; //第一个字符串签名不加& 其他加&连接起来参数
-            $signtext .= "$key=$val"; //拼接为url参数形式
-        }
-        $newsign=md5($signtext . self::$secret_key_azf);
-        return $newsign;
-    }
 
 }

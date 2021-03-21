@@ -197,7 +197,7 @@ class Notify extends Controller {
             'goods_id' => $goods['remote_id'],
             'goods_type' => $dock_data['goods_type'],
             'pay_type' => 1, //余额支付
-            'need_num_0' => $dock_data['num']
+            'need_num_0' => $dock_data['num'] / $order['goods_num']
         ];
         $attach = json_decode($order['attach'], true);
         foreach($attach as $key => $val){
