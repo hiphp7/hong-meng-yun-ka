@@ -196,19 +196,37 @@ class Goods extends Backend {
                         $row->validateFailException(true)->validate($validate);
                     }
 
-
 					$ids = $this->request->param('ids');
 
 
-					
-					if($params["deliver"] == 0){ //自动发货 重构库存
+					if(isset($params["deliver"]) && $params["deliver"] == 0){ //自动发货 重构库存
 						$stock = db::name('cdkey')->where(['goods_id' => $ids])->count();
 						$params['stock'] = $stock;
 					}
-
-                    if($row->goods_type != $params['goods_type'] && $stock > 0){
+//					echo $row->goods_type;die;
+//					print_r($row->toArray());die;
+                    if(isset($params['goods_type']) && $row->goods_type != $params['goods_type'] && $stock > 0){ //自营商品类型
                         throw new Exception('商品存在库存时无法修改商品类型');
                     }
+
+                    if($row->type == "jiuwu"){
+                        $dock_data = json_decode($row->dock_data, true);
+                        $dock_data["increase_id"] = $params["increase_id"];
+                        unset($params["increase_id"]);
+                        if($params['num'] > $dock_data['max_buy_num']){
+                            $this->error("默认数量不能大于{$dock_data['max_buy_num']}");
+                        }
+                        if($params['num'] < $dock_data['min_buy_num']){
+                            $this->error("默认数量不能小于{$dock_data['min_buy_num']}");
+                        }
+                        $dock_data['max_int'] = intval($dock_data["max_buy_num"] / $params["num"]);
+                        $dock_data['num'] = $params["num"];
+                        unset($params["num"]);
+                        $params["dock_data"] = json_encode($dock_data);
+//                        print_r($dock_data);
+                    }
+
+//                    print_r($params);die;
 
                     $result = $row->allowField(true)->save($params);
                     Db::commit();
@@ -229,6 +247,17 @@ class Goods extends Backend {
                 }
             }
             $this->error(__('Parameter %s can not be empty', ''));
+        }
+//
+        $row = Hm::handle_goods($row->toArray());
+        $row['images'] = implode(',', $row['images']);
+//        echo '<pre>'; print_r($row);die;
+        if($row['type'] != 'own'){
+            //获取加价模板列表
+            $increase = db::name('docking_increase')->select();
+            $this->assign([
+                'increase' => $increase
+            ]);
         }
         $this->view->assign("row", $row);
         return $this->view->fetch();

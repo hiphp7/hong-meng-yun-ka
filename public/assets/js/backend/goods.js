@@ -71,7 +71,19 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'price', title: __('价格'), operate:'BETWEEN'},
                         // {field: 'original_price', title: __('Original_price'), operate:'BETWEEN'},
                         {field: 'sales', title: __('销量')},
-                        {field: 'stock', title: __('库存')},
+                        {
+                            field: 'stock',
+                            title: __('库存'),
+                            formatter:function(value,row,index){
+                                if(row.type == 'own'){
+                                    return value;
+                                }else if(row.type == 'jiuwu'){
+                                    return '正常';
+                                }else{
+                                    return `<a href="javascript:;" class="btn btn-xs btn-danger">错误</a>`;
+                                }
+                            }
+                        },
                         {field: 'images', title: __('图片'), events: Table.api.events.image, formatter: Table.api.formatter.images},
                         {
                             field: 'type',
@@ -115,7 +127,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     url: 'goods/stock_add',
                                     text:'添加库存',
                                     hidden:function(row){
-                                        if(row.deliver == 1){ 
+                                        if(row.deliver == 1 || row.type != 'own'){
                                             return true; 
                                         }
                                     }
@@ -129,7 +141,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     url: 'goods/stock',
                                     text:'管理库存',
                                     hidden:function(row){
-                                        if(row.deliver == 1){ 
+                                        if(row.deliver == 1 || row.type != 'own'){
                                             return true; 
                                         }
                                     }

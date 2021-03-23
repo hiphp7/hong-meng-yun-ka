@@ -9,7 +9,7 @@ use think\Db;
 use think\Exception;
 use think\exception\PDOException;
 use think\exception\ValidateException;
-
+use app\common\controller\Dock;
 /**
  * 对接站点管理
  *
@@ -115,17 +115,23 @@ class DockingSite extends Backend
                         'num' => $params['num'], //默认一单购买数量
                         'goods_type' => $params['goods_type'],
                         'max_int' => intval($params['max_buy_num'] / $params['num']), //一次最多可购买单数
+                        'increase_id' => $params['increase_id'], //加价模板
+                        'min_buy_num' => $params['min_buy_num'], //商品最小购买数量
+                        'max_buy_num' => $params['max_buy_num'],
                     ];
                     $params['dock_data'] = json_encode($dock_data);
                     $params['stock'] = -1; //该库存代表对接站没有库存字段，则显示正常字样
                     $params['createtime'] = time();
 
+                    unset($params['max_buy_num']);
+                    unset($params['min_buy_num']);
                     unset($params['goods_type']);
                     unset($params['order_params']);
                     unset($params['num']);
                     unset($params['default_num']);
+                    unset($params['increase_id']);
 
-
+//                    print_r($params);die;
 
                     $result = db::name('goods')->insert($params);
                     Db::commit();
@@ -148,7 +154,7 @@ class DockingSite extends Backend
             $this->error(__('Parameter %s can not be empty', ''));
         }
 
-        $list = $this->get_goods_list($site_id); //获取对接站所有商品
+        $list = Dock::get_goods_list($site_id); //获取对接站所有商品
 
         //根据对接站商品id获取商品详情
         $key = array_search($goods_id, array_column($list, 'id'));
@@ -181,28 +187,7 @@ class DockingSite extends Backend
 
 
 
-    /**
-     * 通过对接站id获取商品列表
-     */
-    public function get_goods_list($id) {
-        $site = db::name('docking_site')->where(['id' => $id])->find();
-        $info = json_decode($site['info'], true);
 
-        $domain = $site['domain'];
-
-        if ($site['type'] == 'jiuwu') {
-            $url = $domain . "index.php?m=home&c=api&a=get_goods_lists";
-            $account = $info['account'];
-            $password = md5($info['password']);
-            $url = $domain . 'index.php?m=home&c=api&a=user_get_goods_lists_details&Api_UserName=' . $account . '&Api_UserMd5Pass=' . $password;
-            $result = file_get_contents($url);
-            $result = json_decode($result, true);
-            $list = $result['user_goods_lists_details'];
-            $list = $this->handle_list_wujiu($list);
-//            Cache::set('dock_goods_list' . $id, $list);
-        }
-        return $list;
-    }
 
     /**
      * 商品列表
@@ -216,7 +201,7 @@ class DockingSite extends Backend
         if ($this->request->isAjax()) {
             $post = $this->request->param();
 //            print_r($post);die;
-            $list = $this->get_goods_list($ids);
+            $list = Dock::get_goods_list($ids);
 
 
             $total = count($list);
@@ -231,53 +216,11 @@ class DockingSite extends Backend
         return $this->view->fetch();
     }
 
-    public function handle_list_wujiu($list)
-    {
-        foreach ($list as &$val) {
-            $price = $val['goods_unitprice'];
-            $price_info = $this->calc_price($price, 1, $val['minbuynum_0']);
-            $val['num'] = $price_info['num'];
-            $val['price'] = upDecimal($price_info['price']);
-            $look_num = $this->look_num($val['num']);
-            $val['look_price'] = $look_num . $val['unit'] . '=' . $val['price'] . '元';
-        }
 
-        return $list;
-    }
 
-    public function look_num($num)
-    {
-        if ($num == 1000) {
-            return '1千';
-        } else if ($num == 10000) {
-            return '1万';
-        } else if ($num == 100000) {
-            return '10万';
-        } else {
-            return $num;
-        }
-    }
 
-    /**
-     * 计算点数价格
-     */
-    public function calc_price($price, $num = 1, $min)
-    {
-        $num *= 10;
-        $price *= 10;
 
-        if ($price < 0.1 || $num <= $min) {
-            return $this->calc_price($price, $num, $min);
-        } else {
-            $num /= 10;
-            $price /= 10;
-        }
-        return [
-            'num' => $num,
-            'price' => $price
-        ];
 
-    }
 
 
     /**

@@ -94,6 +94,10 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             Table.api.bindevent(table);
         },
         add: function () {
+            // $("#c-type").change(function(){
+            //     var type = $(this).val();
+            //     console.log(type)
+            // })
             Controller.api.bindevent();
         },
         edit: function () {

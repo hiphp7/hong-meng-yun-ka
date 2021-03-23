@@ -17,6 +17,8 @@ class Hm{
         echo '<pre>'; print_r($arr);die;
     }
 
+
+
     /**
      * 处理商品信息
     */
@@ -40,6 +42,8 @@ class Hm{
             $goods['order_params'] = empty($dock_data['order_params']) ? [] : $dock_data['order_params'];
             $goods['max_int'] = $dock_data['max_int'];
             $goods['stock'] = '正常';
+            $goods['increase_id'] = empty($dock_data['increase_id']) ? 0 : $dock_data['increase_id'];
+            $goods['num'] = $dock_data['num'];
         }
 
         return $goods;

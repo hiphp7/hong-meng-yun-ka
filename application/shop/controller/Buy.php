@@ -2,7 +2,9 @@
 
 namespace app\shop\controller;
 
+use app\common\controller\Dock;
 use app\shop\controller\pay\Vpay;
+use think\Cache;
 use think\Db;
 use app\shop\controller\pay\Epay;
 use app\shop\controller\pay\Alipay;
@@ -23,6 +25,77 @@ class Buy extends Base {
         }
     }
 
+    /**
+     * 监控对接商品价格
+    */
+    public function checkPrice($goods){
+        if($goods['type'] == 'own'){
+            return $goods;
+        }
+
+        $cache_name = "buy_" . $goods["id"];
+        if(Cache::has($cache_name)){
+            return $goods;
+        }
+
+        if($goods['type'] == 'jiuwu'){
+            if($goods['increase_id'] == 0){
+                return $goods;
+            }
+            $increase = db::name('docking_increase')->where(['id' => $goods['increase_id']])->find();
+            if(!$increase){
+                return $goods;
+            }
+            $cache_name = "dock_goods_list_{$goods['site_id']}";
+            //获取玖伍所有商品
+            if(Cache::has($cache_name)){
+                $list = Cache::get($cache_name);
+            }else{
+                $list = Dock::get_goods_list($goods['site_id']);
+            }
+            //根据对接站商品id获取商品详情
+            $key = array_search($goods['remote_id'], array_column($list, 'id'));
+            $new_goods = $list[$key];
+            if($new_goods['goods_status'] != 0){
+                $this->error($new_goods['goods_close_msg']);
+            }
+
+            $new_price = $new_goods['price'] / $new_goods['num']; //计算出一点的价格 对接站
+            $price = $goods['price'] / $goods['num']; //计算出一点的价格 自营站
+
+            //这个变量用来对比对接站点一定数量的价格和销售站点的价格
+            $new_goods['price'] = $new_price * $goods['num'] < 0.01 ? 0.01 : upDecimal($new_price * $goods['num']);
+            // 1,对接站价格高于销售价格 2，对接站价格出现变动
+            if(($increase['effect'] == 1 && $new_goods['price'] > $price) || ($increase['effect'] == 2 && $new_goods['price'] != $goods['buy_price'])){
+
+                if($increase['type'] == 'percent'){ //百分比增加 依据新价格
+                    $add_price = upDecimal($new_goods['price'] * (upDecimal(1 / $increase['value']))); //新的价格乘以百分比。加上新的价格得出最新出售价格
+                    $add_price = $add_price < 0.01 ? 0.01 : $add_price;
+                    $price = $add_price + $new_goods['price'];
+                }
+                if($increase['type'] == 'fixed'){ //固定金额增加 依据新价格
+                    $price = $new_goods['price'] + $increase['value'];
+                }
+                if($increase['type'] == 'follow'){ //跟随对接站增加 依据新价格
+                    $price = $new_goods['price'] + ($new_goods['price'] - $goods['buy_price']);
+                }
+            }
+
+            //修改商品信息
+            $update = [
+                'buy_price' => $new_goods['price'],
+                'price' => $price,
+            ];
+            $goods['buy_price'] = $update['buy_price'];
+            $goods['price'] = $price;
+            db::name('goods')->where(['id' => $goods['id']])->update($update);
+            //更新对接商品缓存
+            $cache_name = "buy_" . $goods["id"];
+            Cache::set($cache_name, $goods, $increase['expire'] * 60);
+            return $goods;
+        }
+    }
+
 
     /**
      * 确认订单页面
@@ -31,6 +104,9 @@ class Buy extends Base {
 
         $post = $this->request->param();
         $goods = Hm::getGoodsInfo($post['goods_id']);
+
+        //监控价格
+        $goods = $this->checkPrice($goods);
 
         if($goods['type'] == 'jiuwu' && $goods['max_int'] < $post['goods_num']){
             $this->error('该商品最多可以购买' . $goods['max_int'] . '件');

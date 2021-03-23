@@ -33,10 +33,16 @@ $template = get_config();
                         <i class="layui-icon layui-icon-search"></i>
                         <span>查看订单</span>
                     </a>
-                    {if condition="$site.login == 1"}
+                    {if condition="$site.login == 1 && $uid == null"}
                     <a href="{:url('/login')}">
                         <i class="layui-icon layui-icon-username"></i>
                         <span>登录</span>
+                    </a>
+                    {/if}
+                    {if condition="$uid"}
+                    <a href="{:url('/logout')}">
+                        <i class="layui-icon layui-icon-username"></i>
+                        <span>退出登录</span>
                     </a>
                     {/if}
                 </div>

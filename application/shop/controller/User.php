@@ -187,7 +187,7 @@ class User extends Base {
     //退出登录
     public function logout() {
         session::delete('uid');
-        $this->redirect(url('/login'));
+        $this->redirect(url('/'));
     }
 
     //绑定邮箱
