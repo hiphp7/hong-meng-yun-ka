@@ -95,7 +95,7 @@ class Hm{
                 $val['s'] = '待付款';
             }elseif($val['pay'] == 1 && $val['status'] == 1){
                 $val['s'] = '待发货';
-            }elseif($val['pay'] == 1 && $val['status'] == 2){
+            }elseif($val['pay'] == 1 && $val['status'] == 2 || $val['status'] == 'yifahuo'){
                 $val['s'] = '待收货';
             }elseif($val['pay'] == 1 && $val['status'] == 9){
                 $val['s'] = '交易完成';

@@ -59,9 +59,10 @@ class Order extends Base {
         $update = [
             'status' => 9
         ];
+        $user = Hm::getUser(); //获取当前用户信息
         $where = [
             "id" => $order_id,
-            'uid' => $this->uid == null ? $this->tourist : $this->uid,
+            'uid' => $user['id'],
         ];
         db::name('order')->where($where)->update($update);
         return json(['msg' => '已收货', 'code' => 200]);

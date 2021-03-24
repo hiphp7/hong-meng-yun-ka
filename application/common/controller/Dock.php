@@ -132,8 +132,16 @@ class Dock{
         curl_close($ch);
 
         unlink($cookie);
+        
+        
+        
 
         $html=preg_replace("/[\t\n\r]+/","",$html);
+        
+        $html = preg_replace("/<!--[^\!\[]*?(?<!\/\/)-->/","",$html); //过滤掉html注释
+        
+        // echo $html;die;
+        
 
         $partern = '/<form role="form" method="post" class="order_post_form" action=".*?">(.*?)<\/form>/';
 

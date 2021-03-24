@@ -108,10 +108,10 @@ window.onload = function(){
                 if(list[i].status == 9){
                     html += `<button type="button" class="layui-btn layui-btn-xs goods-btn" data-goods-id="${list[i].goods_id}">再次购买</button>`;
                 }
-                if(list[i].status == 2 || list[i].status == 9){
+                if(list[i].status == 2 || list[i].status == 9 || list[i].status == 'yifahuo'){
                     html += `<button type="button" class="layui-btn layui-btn-normal layui-btn-xs look-kami-btn" data-id="${list[i].id}">查看卡密</button>`;
                 }
-                if(list[i].status == 2){
+                if(list[i].status == 2 || list[i].status == 'yifahuo'){
                     html += `<button type="button" id="sh-btn-${list[i].id}" class="layui-btn layui-btn-xs sh-btn" data-id="${list[i].id}">确认收货</button>`;
                 }
                 if(list[i].status == 9 || list[i].pay == 0 || list[i].status == -1){ //订单完成或者未付款或者失效订单
