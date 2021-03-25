@@ -55,11 +55,7 @@ input[type="number"] {
 /*
 滚动条重置
 */
-::-webkit-scrollbar {
-    width: 0px;
-    height: 7px;
-    background-color: #F5F5F5;
-}
+
 
 ::-webkit-scrollbar-track {
     background-color: #fff;
