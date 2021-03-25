@@ -4,6 +4,7 @@ namespace app\shop\controller;
 
 use app\common\controller\Dock;
 use app\shop\controller\pay\Vpay;
+use app\shop\controller\pay\Codepay;
 use think\Cache;
 use think\Db;
 use app\shop\controller\pay\Epay;
@@ -12,7 +13,7 @@ use app\common\controller\Hm;
 
 /**
  * 提交支付订单
-*/
+ */
 class Buy extends Base {
 
 
@@ -27,7 +28,7 @@ class Buy extends Base {
 
     /**
      * 监控对接商品价格
-    */
+     */
     public function checkPrice($goods){
         if($goods['type'] == 'own'){
             return $goods;
@@ -99,7 +100,7 @@ class Buy extends Base {
 
     /**
      * 确认订单页面
-    */
+     */
     public function confirm(){
 
         $post = $this->request->param();
@@ -321,8 +322,8 @@ class Buy extends Base {
                 if (1 == 0) {
                     db::name('order')->insert($insert);
                 } else {
-					unset($insert['createtime']);
-					unset($insert['order_no']);
+                    unset($insert['createtime']);
+                    unset($insert['order_no']);
                     db::name('order')->where(['id' => 2, 'uid' => $this->uid])->update($insert);
                 }
 
@@ -339,7 +340,7 @@ class Buy extends Base {
         }
 
         //支付配置列表
-		$pay_list = db::name('pay')->where(['status' => 1])->order('weigh desc')->select();
+        $pay_list = db::name('pay')->where(['status' => 1])->order('weigh desc')->select();
 
         //支付宝
         if ($order['pay_type'] == 'alipay' || $order['pay_type'] == 'alipay_wap') { //支付宝付款
@@ -389,12 +390,12 @@ class Buy extends Base {
             }
 
 
-			if($pay_type == 'codepay'){ //发起码支付
-				$codepay = new Codepay();
-				$codepay->pay($order, 1);
-			}
+            if($pay_type == 'codepay'){ //发起码支付
+                $codepay = new Codepay();
+                $codepay->pay($order, 1);
+            }
 
-			if($pay_type == 'alipay' || $pay_type == "alipay_wap"){ //发起支付宝官方支付
+            if($pay_type == 'alipay' || $pay_type == "alipay_wap"){ //发起支付宝官方支付
 
                 $alipay = new Alipay();
                 if(is_mobile()){
@@ -406,20 +407,21 @@ class Buy extends Base {
                     }
                 }else {
                     if(empty($payInfo['pc'])){
+
                         $alipay->pay($payInfo, $goods, $order, 'sm', 'order'); //当面付
                     }else{
                         //此处应该调用pc网站支付 -----暂无pc支付 临时调用当面付
-                        $alipay->pay($payInfo, $goods, $order, 'pc', 'order'); //支付宝当面付
+                        $alipay->pay($payInfo, $goods, $order, 'pc', 'order'); //支付宝pc
                     }
 
                 }
 
-			}
+            }
 
 
         }
 
-		if($order['pay_type'] == 'wxpay'){ //微信付款
+        if($order['pay_type'] == 'wxpay'){ //微信付款
 
             // 区分出官方微信，码支付,易支付的微信付款优先级
             $pay_type = null;
@@ -463,9 +465,9 @@ class Buy extends Base {
             }
 
 
-		}
+        }
 
-		if($order['pay_type'] == 'qqpay'){ //qq付款
+        if($order['pay_type'] == 'qqpay'){ //qq付款
             // 区分出官方qq，码支付,易支付的qq付款优先级
             $pay_type = null;
             foreach($pay_list as $key => $val){
@@ -496,7 +498,7 @@ class Buy extends Base {
                 $epay->pay($order, $goods, 'qqpay');
             }
 
-		}
+        }
 
     }
 
@@ -513,7 +515,7 @@ class Buy extends Base {
     /**
      * 提交订单页面
      * @params $goods_id 商品id   or  @params $order_id 订单id
-    */
+     */
     public function detail() {
         $goods_num = 1;
         $order_id = 0;

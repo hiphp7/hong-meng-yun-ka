@@ -21,7 +21,7 @@ class Hm{
 
     /**
      * 处理商品信息
-    */
+     */
     static public function handle_goods($goods){
         $goods['images'] = explode(',', $goods['images']);
         $goods['cover'] = $goods['images'][0];
@@ -51,7 +51,7 @@ class Hm{
 
     /**
      * 获取商品信息
-    */
+     */
     static public function getGoodsInfo($goods_id){
         $goods = db::name('goods')->where(['id' => $goods_id])->find();
 
@@ -63,8 +63,8 @@ class Hm{
 
         return $goods;
     }
-    
-    
+
+
     /**
      * 获取订单列表
      */
@@ -93,11 +93,12 @@ class Hm{
                 $val['status'] = -1;
             }elseif($val['pay'] == 0){
                 $val['s'] = '待付款';
-            }elseif($val['pay'] == 1 && $val['status'] == 1){
+            }elseif($val['pay'] == 1 && ($val['status'] == '1' || $val['status'] == '0')){
+
                 $val['s'] = '待发货';
-            }elseif($val['pay'] == 1 && $val['status'] == 2 || $val['status'] == 'yifahuo'){
+            }elseif($val['pay'] == 1 && ($val['status'] == '2' || $val['status'] == 'yifahuo')){
                 $val['s'] = '待收货';
-            }elseif($val['pay'] == 1 && $val['status'] == 9){
+            }elseif($val['pay'] == 1 && $val['status'] == '9'){
                 $val['s'] = '交易完成';
                 $val['s_color'] = '#52c41a';
             }else{

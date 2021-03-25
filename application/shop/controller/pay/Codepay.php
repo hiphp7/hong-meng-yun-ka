@@ -1,6 +1,6 @@
 <?php
 
-namespace app\shop\controller;
+namespace app\shop\controller\pay;
 
 use app\common\controller\Fun;
 use fast\Http;

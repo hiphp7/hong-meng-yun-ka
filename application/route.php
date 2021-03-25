@@ -38,7 +38,7 @@ Route::rule('order/[:type]','shop/order/index'); //订单中心
 Route::get('list/:category','shop/goods/lists'); //商品列表
 Route::rule('buy/:goods_id','shop/buy/detail'); //提交订单
 Route::rule('buy_order/:order_id','shop/buy/detail'); //提交订单
-Route::rule('aliprecreate/:out_trade_no/:table/[:img]','shop/alipay/aliprecreate'); //支付宝当面付
+Route::rule('aliprecreate','shop/pay.alipay/aliprecreate'); //支付宝当面付
 Route::rule('getorderstatus/:out_trade_no/:table','shop/order/getorderstatus'); //获取订单支付状态
 Route::rule('tourist_key','shop/index/get_tourist_key'); //获取游客标识
 Route::rule('tourist_login','shop/index/tourist_login'); //游客登录

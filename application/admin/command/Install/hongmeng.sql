@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50644
 File Encoding         : 65001
 
-Date: 2021-03-11 21:46:09
+Date: 2021-03-25 21:56:54
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -41,7 +41,7 @@ CREATE TABLE `hm_admin` (
 -- ----------------------------
 -- Records of hm_admin
 -- ----------------------------
-INSERT INTO `hm_admin` VALUES ('1', 'admin', 'Admin', '87a66f2abca8531978fec4644ecda133', 'd84ce7', '/assets/img/avatar.png', 'admin@admin.com', '0', '1615383502', '127.0.0.1', '1492186163', '1615383502', '3466b44a-c108-4c97-99e3-69729245cf6a', 'normal');
+INSERT INTO `hm_admin` VALUES ('1', 'admin', 'Admin', '87a66f2abca8531978fec4644ecda133', 'd84ce7', '/assets/img/avatar.png', 'admin@admin.com', '0', '1616674303', '127.0.0.1', '1492186163', '1616674303', '4ef60c7d-9c02-46ff-9b05-0f70647ab4ff', 'normal');
 
 -- ----------------------------
 -- Table structure for hm_admin_log
@@ -133,7 +133,7 @@ CREATE TABLE `hm_auth_rule` (
   UNIQUE KEY `name` (`name`) USING BTREE,
   KEY `pid` (`pid`) USING BTREE,
   KEY `weigh` (`weigh`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='节点表';
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='节点表';
 
 -- ----------------------------
 -- Records of hm_auth_rule
@@ -155,6 +155,9 @@ INSERT INTO `hm_auth_rule` VALUES ('14', 'file', '0', 'config', '系统配置', 
 INSERT INTO `hm_auth_rule` VALUES ('15', 'file', '5', 'goods/index', '商品列表', 'fa fa-list-ul', '', '', '1', '1612337333', '1612337333', '0', 'normal');
 INSERT INTO `hm_auth_rule` VALUES ('16', 'file', '5', 'attach', '附加选项', 'fa fa-bookmark', '', '', '1', '1612337369', '1612337377', '0', 'normal');
 INSERT INTO `hm_auth_rule` VALUES ('17', 'file', '0', 'order', '订单管理', 'fa fa-reorder', '', '', '1', '1612337430', '1612337430', '91', 'normal');
+INSERT INTO `hm_auth_rule` VALUES ('18', 'file', '0', 'docking', '对接管理', 'fa fa-sliders', '', '', '1', '1615643470', '1615643470', '0', 'normal');
+INSERT INTO `hm_auth_rule` VALUES ('19', 'file', '18', 'docking/docking_site', '对接站点', 'fa fa-sitemap', '', '', '1', '1615644927', '1615644927', '0', 'normal');
+INSERT INTO `hm_auth_rule` VALUES ('20', 'file', '18', 'docking/increase', '加价模板', 'fa fa-usd', '', '', '1', '1615648888', '1615648888', '0', 'normal');
 
 -- ----------------------------
 -- Table structure for hm_category
@@ -229,14 +232,14 @@ CREATE TABLE `hm_config` (
 INSERT INTO `hm_config` VALUES ('1', 'shop_title', 'basic', '网站标题', '', 'string', '红盟云卡在线自动发卡系统 - 全国最大的虚拟货源销售平台', '', '', '', '{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"}');
 INSERT INTO `hm_config` VALUES ('2', 'shop_pet_name', 'basic', '网站名称', '', 'string', '红盟云卡', '', '', '', '{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"}');
 INSERT INTO `hm_config` VALUES ('3', 'beian', 'basic', 'Beian', '粤ICP备15000000号-1', 'string', '', '', '', '', null);
-INSERT INTO `hm_config` VALUES ('4', 'version', 'other', '后台静态文件版本', '如果静态资源有变动请重新配置该值', 'string', '1.0.12', '', 'required', '', null);
+INSERT INTO `hm_config` VALUES ('4', 'version', 'other', '后台静态文件版本', '如果静态资源有变动请重新配置该值', 'string', '1616675516', '', 'required', '', null);
 INSERT INTO `hm_config` VALUES ('5', 'fixedpage', 'other', 'Fixed page', '请尽量输入左侧菜单栏存在的链接', 'string', 'dashboard', '', 'required', '', null);
-INSERT INTO `hm_config` VALUES ('6', 'configgroup', 'dictionary', 'Config group', '', 'array', '{\"basic\":\"Basic\",\"money\":\"资金管理\",\"dictionary\":\"Dictionary\",\"other\":\"其他配置\"}', '', '', '', null);
+INSERT INTO `hm_config` VALUES ('6', 'configgroup', 'dictionary', 'Config group', '', 'array', '{\"basic\":\"Basic\",\"money\":\"资金配置\",\"other\":\"其他配置\"}', '', '', '', null);
 INSERT INTO `hm_config` VALUES ('7', 'mail_type', 'email', 'Mail type', '选择邮件发送方式', 'select', '1', '[\"请选择\",\"SMTP\",\"Mail\"]', '', '', null);
 INSERT INTO `hm_config` VALUES ('8', 'mail_smtp_host', 'email', 'Mail smtp host', '错误的配置发送邮件会导致服务器超时', 'string', 'smtp.qq.com', '', '', '', null);
 INSERT INTO `hm_config` VALUES ('9', 'mail_smtp_port', 'email', 'Mail smtp port', '(不加密默认25,SSL默认465,TLS默认587)', 'string', '465', '', '', '', null);
-INSERT INTO `hm_config` VALUES ('10', 'mail_smtp_user', 'email', 'Mail smtp user', '（填写完整用户名）', 'string', '麒麟自动发卡系统', '', '', '', null);
-INSERT INTO `hm_config` VALUES ('11', 'mail_smtp_pass', 'email', 'Mail smtp password', '（填写您的密码）', 'string', '', '', '', '', null);
+INSERT INTO `hm_config` VALUES ('10', 'mail_smtp_user', 'email', 'Mail smtp user', '（填写完整用户名）', 'string', '红盟云卡自动发卡商城', '', '', '', null);
+INSERT INTO `hm_config` VALUES ('11', 'mail_smtp_pass', 'email', 'Mail smtp password', '（填写您的密码）', 'string', 'ezhgsafxikipbihi', '', '', '', null);
 INSERT INTO `hm_config` VALUES ('12', 'mail_verify_type', 'email', 'Mail vertify type', '（SMTP验证方式[推荐SSL]）', 'select', '2', '[\"无\",\"TLS\",\"SSL\"]', '', '', null);
 INSERT INTO `hm_config` VALUES ('13', 'mail_from', 'email', 'Mail from', '', 'string', '10220739@qq.com', '', '', '', null);
 INSERT INTO `hm_config` VALUES ('14', 'min_cashout', 'money', '最低提现金额', '0则不限制金额', 'number', '0', '', '', '', '{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"}');
@@ -248,21 +251,56 @@ INSERT INTO `hm_config` VALUES ('19', 'register', 'basic', '注册功能', '', '
 INSERT INTO `hm_config` VALUES ('20', 'statistics', 'basic', '统计代码', '第三方流量统计代码', 'text', '', '', '', '', '{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"}');
 
 -- ----------------------------
+-- Table structure for hm_docking_increase
+-- ----------------------------
+DROP TABLE IF EXISTS `hm_docking_increase`;
+CREATE TABLE `hm_docking_increase` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL COMMENT '模板名称',
+  `type` varchar(255) DEFAULT NULL COMMENT '加价方式',
+  `value` varchar(255) DEFAULT NULL COMMENT '加价',
+  `effect` varchar(255) DEFAULT NULL COMMENT '模板生效场景',
+  `expire` int(10) DEFAULT '0' COMMENT '价格检测过期时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='对接 加价模板';
+
+-- ----------------------------
+-- Records of hm_docking_increase
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for hm_docking_site
+-- ----------------------------
+DROP TABLE IF EXISTS `hm_docking_site`;
+CREATE TABLE `hm_docking_site` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `type` varchar(255) NOT NULL COMMENT '类型',
+  `domain` varchar(255) NOT NULL COMMENT '域名',
+  `info` text COMMENT '对接网站所需信息',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='对接站点管理';
+
+-- ----------------------------
+-- Records of hm_docking_site
+-- ----------------------------
+
+-- ----------------------------
 -- Table structure for hm_goods
 -- ----------------------------
 DROP TABLE IF EXISTS `hm_goods`;
 CREATE TABLE `hm_goods` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
-  `site_id` int(10) DEFAULT '0',
-  `category_id` int(10) DEFAULT NULL,
+  `site_id` int(10) DEFAULT '0' COMMENT '对接站点id',
+  `category_id` int(10) DEFAULT '0' COMMENT '商品分类id',
   `attach_id` int(10) DEFAULT '0' COMMENT '附加选项id',
-  `remote_id` int(10) DEFAULT '0' COMMENT '远程商品id',
+  `remote_id` int(10) DEFAULT '0' COMMENT '对接商品id',
   `name` varchar(255) DEFAULT NULL,
   `diy_name` varchar(255) DEFAULT NULL COMMENT '自定义商品名称',
-  `price` decimal(10,2) DEFAULT NULL,
-  `buy_price` decimal(10,2) DEFAULT NULL COMMENT '进货价格',
-  `sales` int(11) DEFAULT '0',
-  `sales_money` decimal(10,2) DEFAULT '0.00',
+  `dock_data` text COMMENT '购买对接商品所需信息',
+  `price` decimal(10,2) DEFAULT '0.00',
+  `buy_price` decimal(10,2) DEFAULT '0.00' COMMENT '进货价格',
+  `sales` int(11) DEFAULT '0' COMMENT '销量',
+  `sales_money` decimal(10,2) DEFAULT '0.00' COMMENT '销售额',
   `images` varchar(255) DEFAULT NULL,
   `details` text,
   `shelf` tinyint(1) DEFAULT '0' COMMENT '1为下架',
@@ -270,7 +308,6 @@ CREATE TABLE `hm_goods` (
   `type` varchar(10) DEFAULT 'own' COMMENT '产品类型',
   `deliver` tinyint(1) DEFAULT '0' COMMENT '发货方式0自动发货 1手动发货',
   `stock` int(10) DEFAULT '0' COMMENT '库存',
-  `kami` text COMMENT '卡密',
   `createtime` int(10) DEFAULT NULL,
   `updatetime` int(10) DEFAULT NULL,
   `deletetime` int(10) DEFAULT NULL,
@@ -386,7 +423,7 @@ CREATE TABLE `hm_order` (
   `pay_type` varchar(255) DEFAULT NULL COMMENT '支付方式',
   `kami` text,
   `goods_type` tinyint(1) DEFAULT '0' COMMENT '0 卡密 1 激活码 2账号和密码',
-  `status` int(1) DEFAULT '0' COMMENT '订单状态 1代发货 2待收货 9已完成',
+  `status` varchar(20) DEFAULT '0' COMMENT '订单状态 1代发货 2待收货 9已完成',
   `qr_code` varchar(255) DEFAULT NULL COMMENT '收款二维码',
   `createtime` int(10) DEFAULT '0' COMMENT '创建时间',
   `paytime` int(10) DEFAULT '0' COMMENT '支付时间',
@@ -409,13 +446,15 @@ CREATE TABLE `hm_pay` (
   `status` tinyint(1) DEFAULT '0' COMMENT '是否启用',
   `weigh` int(10) DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of hm_pay
 -- ----------------------------
 INSERT INTO `hm_pay` VALUES ('1', '支付宝支付', '', 'alipay', '0', '2');
 INSERT INTO `hm_pay` VALUES ('2', '码支付', '', 'codepay', '0', '1');
+INSERT INTO `hm_pay` VALUES ('3', '易支付', '', 'epay', '0', '3');
+INSERT INTO `hm_pay` VALUES ('4', 'V免签', '', 'vpay', '0', '4');
 
 -- ----------------------------
 -- Table structure for hm_shop_station
@@ -519,21 +558,4 @@ CREATE TABLE `hm_user` (
 
 -- ----------------------------
 -- Records of hm_user
--- ----------------------------
-
--- ----------------------------
--- Table structure for hm_user_alipay
--- ----------------------------
-DROP TABLE IF EXISTS `hm_user_alipay`;
-CREATE TABLE `hm_user_alipay` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `uid` int(10) DEFAULT NULL,
-  `account` varchar(255) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `createtime` int(10) DEFAULT NULL,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
-
--- ----------------------------
--- Records of hm_user_alipay
 -- ----------------------------
