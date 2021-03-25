@@ -76,9 +76,6 @@ function goods_info($id){
 
     $goods = Hm::getGoodsInfo($id);
 
-    $goods = db::name('goods')->where(['id' => $id])->find();
-
-
     $images = empty($goods["images"]) ? '' : explode(',', $goods['images']);
     $goods['cover'] = empty($images[0]) ? '' : $images[0];
     $attach = [];
@@ -96,7 +93,7 @@ function goods_info($id){
  * 首页分类和商品
 */
 function goods_list(){
-    $category = db::name('category')->select();
+    $category = db::name('category')->where(['status' => 'normal'])->select();
 
     $goods = db::name('goods')->where('deletetime is null and shelf=0')->order('id desc')->select();
 
