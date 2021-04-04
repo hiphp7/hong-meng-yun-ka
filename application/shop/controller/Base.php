@@ -75,10 +75,16 @@ class Base extends Controller {
             "template_version" => $this->template_version
         ]);
 
+        $active_plugins = Db::name('options')->where(['option_name' => 'active_plugin'])->value('option_content');
+        $active_plugins = empty($active_plugins) ? [] : unserialize($active_plugins);
+        if ($active_plugins && is_array($active_plugins)) {
+            foreach($active_plugins as $plugin) {
+                if(true === checkPlugin($plugin)) {
+                    include_once(ROOT_PATH . 'public/content/plugin/' . $plugin);
+                }
+            }
+        }
 
-        // var_dump($this->uid);
-        // var_dump($this->tourist);
-        // die;
     }
 
 

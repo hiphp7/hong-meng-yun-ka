@@ -5,6 +5,7 @@ namespace app\common\controller;
 use app\admin\library\Auth;
 use think\Config;
 use think\Controller;
+use think\Db;
 use think\Hook;
 use think\Lang;
 use think\Loader;
@@ -143,7 +144,6 @@ class Backend extends Controller {
 
             //检测是否登录
             if (!$this->auth->isLogin()) {
-                Hook::listen('admin_nologin', $this);
                 $url = Session::get('referer');
                 $url = $url ? $url : $this->request->url();
                 if ($url == '/') {
@@ -213,7 +213,17 @@ class Backend extends Controller {
         $this->assign('auth', $this->auth);
         //渲染管理员对象
         $this->assign('admin', Session::get('admin'));
-//        echo '<pre>'; print_r($config); die;
+
+        $active_plugins = Db::name('options')->where(['option_name' => 'active_plugin'])->value('option_content');
+        $active_plugins = empty($active_plugins) ? [] : unserialize($active_plugins);
+        if ($active_plugins && is_array($active_plugins)) {
+            foreach($active_plugins as $plugin) {
+                if(true === checkPlugin($plugin)) {
+                    include_once(ROOT_PATH . 'public/content/plugin/' . $plugin);
+                }
+            }
+        }
+
     }
 
     /**

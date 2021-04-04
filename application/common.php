@@ -6,6 +6,50 @@ use Symfony\Component\VarExporter\VarExporter;
 
 
 /**
+ * 检查插件
+ */
+function checkPlugin($plugin) {
+    if (is_string($plugin) && preg_match("/^[\w\-\/]+\.php$/", $plugin) && file_exists(ROOT_PATH . 'public/content/plugin/' . $plugin)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
+/**
+ * 该函数在插件中调用,挂载插件函数到预留的钩子上
+ *
+ * @param string $hook
+ * @param string $actionFunc
+ * @return boolearn
+ */
+function addAction($hook, $actionFunc) {
+    global $hmHooks;
+    if (!@in_array($actionFunc, $hmHooks[$hook])) {
+        $hmHooks[$hook][] = $actionFunc;
+    }
+    return true;
+}
+
+/**
+ * 执行挂在钩子上的函数,支持多参数 eg:doAction('post_comment', $author, $email, $url, $comment);
+ *
+ * @param string $hook
+ */
+function doAction($hook) {
+    global $hmHooks;
+    $args = array_slice(func_get_args(), 1);
+
+//    print_r($args);die;
+    if (isset($hmHooks[$hook])) {
+        foreach ($hmHooks[$hook] as $function) {
+            $string = call_user_func_array($function, $args);
+        }
+    }
+}
+
+/**
  * 对价格进行向上或向下取整
  * @param $price    价格
  * @param $decimal  保留小数位数

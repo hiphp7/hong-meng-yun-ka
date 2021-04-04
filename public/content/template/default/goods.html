@@ -20,6 +20,50 @@
         box-shadow: 0 5px 6px 0 rgb(73 105 230 / 22%);
         background-image: linear-gradient(135deg, #656565 10%, #c1c1c1 100%)
     }
+    .btn{
+        border: 1px solid transparent;
+        line-height: 1.5;
+        border-radius: .25rem;
+    }
+    .btn.btn-outline-secondary{
+        color: #6c757d;
+        background-color: transparent;
+        background-image: none;
+        border-color: #ced4da;
+        cursor: pointer;
+        width: 40px;
+    }
+    .order-number{
+        display: inline-block;
+        width: 3rem;
+        padding: .375rem .75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        float: left;
+        border-left: none;
+        border-right: none;
+    }
+    .input-group-prepend, .input-group-append{
+        display: inline-block;
+        float: left;
+        font-size: 24px;
+    }
+    .order-number-box{
+        display: inline-block;
+    }
+    .add .btn{
+        border-bottom-left-radius: 0;
+        border-top-left-radius: 0;
+    }
+    .sub .btn{
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
 </style>
 <div class="main">
     <div class="layui-row">
@@ -58,19 +102,22 @@
 <!--                                <span class="price-c">[<del>￥{//$goods.original_price}</del>]</span>-->
                             </div>
 
+
+
                             <div class="entry notSelection">
-                                <span class="l-msg">购买数量：</span>
-                                <label class="input">
-                                    <span class="sub" style="cursor: pointer;">
-                                        <embed style="pointer-events: none;" class="svg" src="/content/template/default/svg/jian.svg" type="image/svg+xml"/>
-                                    </span>
-                                    <input class="pay-num" name="goods_num" id="orderNumber" required="" lay-verify="required|order_number" type="number" value="1">
-                                    <span class="add" style="cursor: pointer;">
-                                        <embed style="pointer-events: none;" class="svg" src="/content/template/default/svg/jia.svg" type="image/svg+xml"/>
-                                    </span>
-                                </label>
+                                <span class="l-msg" style="margin-top: -30px;">购买数量：</span>
+                                <div class="input-group order-number-box">
+                                    <div class="input-group-prepend sub">
+                                        <button class="btn btn-decrement btn-outline-secondary" type="button">-</button>
+                                    </div>
+                                    <input type="text" id="orderNumber" name="goods_num" style="text-align: center" class="form-control order-number" required="" lay-verify="required|order_number" value="1">
+                                    <div class="input-group-append add">
+                                        <button class="btn btn-increment btn-outline-secondary" type="button">+</button>
+                                    </div>
+                                </div>
                             </div>
 
+<!--                            对接商品订单参数-->
                             {if condition="isset($goods.order_params)"}
                             {volist name="goods.order_params" id="vo"}
                             <div class="entry">

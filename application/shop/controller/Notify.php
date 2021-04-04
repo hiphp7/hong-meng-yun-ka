@@ -12,7 +12,7 @@ use think\Controller;
 /**
  * 回调类
  */
-class Notify extends Controller {
+class Notify extends Base {
 
     // 表单提交字符集编码
     public $postCharset = "UTF-8";
@@ -20,6 +20,7 @@ class Notify extends Controller {
 
     //订单回调
     public function order() {
+
 
 		$pay_type = $this->request->param('type'); //支付类型
 
@@ -100,7 +101,6 @@ class Notify extends Controller {
 
 
         }elseif($pay_type == 'vpay'){ //v免签验签。
-            db::name('test')->insert(['content' => 'vvvvv！']);
             try {
                 $epay = new Vpay();
 
@@ -131,6 +131,8 @@ class Notify extends Controller {
 
 
         if($check_sign){ //验签成功
+
+
         
             $order = db::name('order')->where(['order_no' => $order_no, 'pay' => 0])->find();
                 
@@ -144,10 +146,6 @@ class Notify extends Controller {
             // db::startTrans();
             try {
 
-                
-                
-                
-                
                 $goods = db::name('goods')->where(['id' => $order['goods_id']])->find();
                 
                 $timestamp = time();
@@ -155,21 +153,16 @@ class Notify extends Controller {
                 //1, 记录用户账单，增加用户消费金额
                 $this->record_user_bill($order, $goods, $timestamp);
                 //2，增加商品销量和商品销售额，减去商品库存
-                $this->handle_goods($goods, $order);
+                $this->update_goods($goods, $order);
                 //3, 给商品发货或去对接站购买商品
                 if($goods['type'] == 'own'){
                     $this->handle_order_own($goods, $order, $timestamp);
                 }
-                db::name('test')->insert(['content' => '333333']);
                 if($goods['type'] == 'jiuwu'){
-                    db::name('test')->insert(['content' => '44444']);
                     $this->handle_order_jiuwu($goods, $order);
                 }
-                
-
-                // db::commit();
-                echo 'success';
-                die;
+                doAction('order_notify', $goods, $order); //订单回调挂载点
+                die('success');
             } catch (\Exception $e) {
                 // Db::rollback();
                 db::name('test')->insert(['content' => $e->getMessage() . $e->getFile() . $e->getLIne()]);
@@ -229,7 +222,7 @@ class Notify extends Controller {
     }
 
     //商品付款后更新商品销量库存等信息
-    public function handle_goods($goods, $order){
+    public function update_goods($goods, $order){
         db::name('goods')->where(['id' => $goods['id']])->setInc('sales'); //增加商品销量
         db::name('goods')->where(['id' => $goods['id']])->setInc('sales_money', $order['money']); //增加商品销售额
         if($goods['type'] == 'own'){

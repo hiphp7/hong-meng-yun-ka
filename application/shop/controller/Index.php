@@ -15,6 +15,9 @@ class Index extends Base {
     public function index() {
 //        echo session::get("uid");die;
 //        echo $this->template_path;die;
+        $this->assign([
+            'page' => 'index'
+        ]);
         return view($this->template_path . "index.html");
     }
 

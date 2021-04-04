@@ -50,8 +50,9 @@ $template = get_config();
         </div>
     </div>
 </div>
+{if condition="isset($page) && $page == 'index'"}
 <div class="notice">
-    <div class="layui-row layui-hide-xs">
+    <div class="layui-row">
         <div class="layui-col-md8 layui-col-md-offset2 layui-col-sm12">
             <div class="layui-card product-panl fillet">
                 {$template['notice']}
@@ -59,3 +60,4 @@ $template = get_config();
         </div>
     </div>
 </div>
+{/if}

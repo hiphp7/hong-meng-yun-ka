@@ -35,7 +35,14 @@ class Hm{
                     $attach = json_decode($attach['value_json'], true);
                 }
             }
-            $goods['attach'] = $attach;
+            foreach($attach as $key => &$val){
+                $val = [
+                    'title' => $key,
+                    'name' => $key,
+                    'placeholder' => $val
+                ];
+            }
+            $goods['order_params'] = $attach;
         }
         if($goods['type'] == 'jiuwu'){
             $dock_data = json_decode($goods['dock_data'], true);
