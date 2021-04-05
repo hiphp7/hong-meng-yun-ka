@@ -132,16 +132,12 @@ class Notify extends Base {
 
         if($check_sign){ //验签成功
 
-
-        
-            $order = db::name('order')->where(['order_no' => $order_no, 'pay' => 0])->find();
+            $order = db::name('order')->where(['order_no' => $order_no, 'status' => ['neq', 0]])->find();
                 
             if (!$order) {
                 echo 'success';
                 die;
             }
-            
-            db::name('order')->where(['id' => $order['id']])->update(['pay' => 1]);
             
             // db::startTrans();
             try {
@@ -206,9 +202,8 @@ class Notify extends Base {
 
     //处理自营订单
     public function handle_order_own($goods, $order, $timestamp){
-        $status = $goods['deliver'] == 0 ? 2 : 1; //自动发货=0 已发货=2 手动发货=1 代发货=1
+        $status = $goods['deliver'] == 0 ? 'yifahuo' : 'daifahuo'; //自动发货=0 已发货=yifahuo 手动发货=1 代发货=daifahuo
         $update = [
-            'pay' => 1, //支付状态
             'status' => $status, //发货状态
             'paytime' => $timestamp, //支付时间
         ];

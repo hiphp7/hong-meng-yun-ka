@@ -86,19 +86,17 @@ class Dashboard extends Backend {
         db::commit();
 
         $version = $this->version;
-//        $version = "1.0.2";
         $upgrade_url = "http://cmd.hmyblog.com/upgrade/shop/" . $version;
 
         if(Cache::has('upgrade_result')){
             $result = Cache::get('upgrade_result');
         }else{
-//            $result = json_decode(file_get_contents($upgrade_url), true);
             try {
                 $result = json_decode(file_get_contents($upgrade_url), true);
             }catch (\Exception $e){
                 $result = [];
             }
-            Cache::set('upgrade_result', $result);
+            Cache::set('upgrade_result', $result, 3600 * 12);
         }
 
 
@@ -132,5 +130,30 @@ class Dashboard extends Backend {
 
         return $this->view->fetch();
     }
+
+
+    /**
+     * 检查更新
+    */
+    public function checkUpgrade(){
+        $version = $this->version;
+        if($version == '开发版'){
+            return json(['code' => 401, 'msg' => "您使用的是开发版本，不支持更新！请<a href='http://www.hmy3.com/hmyk.html' target='_blank'>前往官网<a/>下载发行版！"]);
+        }
+
+        $upgrade_url = "http://cmd.hmyblog.com/upgrade/shop/" . $version;
+
+        try {
+            $result = json_decode(file_get_contents($upgrade_url), true);
+        }catch (\Exception $e){
+            return json(['code' => 400, 'msg' => '获取更新失败！']);
+        }
+        Cache::set('upgrade_result', $result, 3600 * 12);
+
+        return $result;
+
+
+    }
+
 
 }

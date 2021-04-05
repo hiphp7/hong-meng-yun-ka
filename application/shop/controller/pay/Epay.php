@@ -43,13 +43,14 @@ class Epay extends Base {
             "out_trade_no"     => $order['order_no'], //商户订单号
             "notify_url" => $this->domain . 'shop/notify/order/type/epay',//异步通知地址
             "return_url" => $this->domain . 'order/all.html',//付款完成后的跳转地址
-            "name" => empty($goods['diy_name']) ? $goods['name'] : $goods['diy_name'], //商品名称
+            "name" => empty($this->site['diy_name']) ? $goods['name'] : $this->site['diy_name'], //商品名称
             "money"      => $order['money'],//订单金额
         ]; //构造需要传递的参数
 
+
+
         echo $this->buildRequestForm($data);
         die;
-
 
     }
 

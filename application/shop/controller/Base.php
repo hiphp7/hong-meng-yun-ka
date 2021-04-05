@@ -55,7 +55,13 @@ class Base extends Controller {
         $this->template_name = $template['directory'];
         $this->template_version = $template['version'];
 
-        $this->domain = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . '/';
+        if(isset($_SERVER['REQUEST_SCHEME'])){
+            $this->domain = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . '/';
+        }else{
+            $this->domain = 'http://' . $_SERVER['HTTP_HOST'] . '/';
+        }
+
+
 
 		$this->uid = session::has("uid") ? session::get("uid") : null;
 

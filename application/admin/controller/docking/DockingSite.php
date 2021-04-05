@@ -121,11 +121,11 @@ class DockingSite extends Backend
                     ];
                     $params['dock_data'] = json_encode($dock_data);
                     $params['stock'] = -1; //该库存代表对接站没有库存字段，则显示正常字样
+                    $params['goods_type'] = 'duijie'; //商品类型
                     $params['createtime'] = time();
 
                     unset($params['max_buy_num']);
                     unset($params['min_buy_num']);
-                    unset($params['goods_type']);
                     unset($params['order_params']);
                     unset($params['num']);
                     unset($params['default_num']);

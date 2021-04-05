@@ -87,12 +87,11 @@ class Alipay extends Base {
 
         $biz_content = [
             'body' => '', //对一笔交易的具体描述信息
-            'subject' => empty($goods['diy_name']) ? $goods['name'] : $goods['diy_name'], //商品标题
+            'subject' => empty($this->site['diy_name']) ? $goods['name'] : $this->site['diy_name'], //商品标题
             'out_trade_no' => $order['order_no'], //商户订单号
             'timeout_express' => '10m', //关闭订单时间
             'total_amount' => $order['money'], //订单金额，单位/元
         ];
-
 
 
         if($pay_type == 'sm'){

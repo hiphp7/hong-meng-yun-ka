@@ -19,7 +19,7 @@ use think\Validate;
  */
 class Backend extends Controller {
 	
-//	public $version = "1.2.0";
+//	public $version = "1.1.0";
 	public $version = "开发版";
 	
 

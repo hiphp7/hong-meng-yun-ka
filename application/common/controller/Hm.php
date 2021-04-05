@@ -94,18 +94,17 @@ class Hm{
 
             if($val['status'] == -1){
                 $val['s'] = '订单已失效';
-            }elseif($val['pay'] == 0 && $timestamp - $val['createtime'] >= 600){
+            }elseif($val['status'] == 0 && $timestamp - $val['createtime'] >= 600){
                 $val['s'] = '订单已失效';
                 db::name('order')->where(['id' => $val['id']])->update(['status' => -1]);
                 $val['status'] = -1;
-            }elseif($val['pay'] == 0){
+            }elseif($val['status'] == 0){
                 $val['s'] = '待付款';
-            }elseif($val['pay'] == 1 && ($val['status'] == '1' || $val['status'] == '0')){
-
+            }elseif($val['status'] == 'daifahuo'){
                 $val['s'] = '待发货';
-            }elseif($val['pay'] == 1 && ($val['status'] == '2' || $val['status'] == 'yifahuo')){
+            }elseif($val['status'] == 'yifahuo'){
                 $val['s'] = '待收货';
-            }elseif($val['pay'] == 1 && $val['status'] == '9'){
+            }elseif($val['status'] == 'success'){
                 $val['s'] = '交易完成';
                 $val['s_color'] = '#52c41a';
             }else{

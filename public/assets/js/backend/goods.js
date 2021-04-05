@@ -53,7 +53,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                 }else if(value == 3){
                                     return '<span class="label"  title="" style="background: #00acc1;"> 图 片 </span>';
                                 }else if(value == 4){
-                                    return '<span class="label"  title="" style="background: #868686;">其他</span>';
+                                    return '<span class="label"  title="" style="background: #868686;"> 其 他 </span>';
+                                }else if(value == 'duijie'){
+                                    return '<span class="label"  title="" style="background: #4caf50;"> 对 接 </span>';
                                 }
                             }
                         },

@@ -93,10 +93,10 @@ class Order extends Base {
 			if(time() - $order['createtime'] >= 600){
 				return json(['msg' => '订单已过期', 'code' => 400]);
 			}
-			if($order['pay'] == 0){
-				return json(['code' => 200, 'msg' => '未支付', 'data' => -1]);
+			if($order['status'] != '0' && $order['status'] != '-1'){
+                return json(['code' => 200, 'msg' => '已支付', 'data' => 1]);
 			}else{
-				return json(['code' => 200, 'msg' => '已支付', 'data' => 1]);
+                return json(['code' => 200, 'msg' => '未支付', 'data' => -1]);
 			}
 			
             $pay = $pay && $order['pay'] != 1 ? true : false;

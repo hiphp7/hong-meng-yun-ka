@@ -34,15 +34,13 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
                     return;
                 }
                 $(this).html("正在检查...");
-                var version = $("#version").val();
-                if(version == '开发版'){
-                    $("#check-update").html("您使用的是开发版本，不支持更新！请<a href='http://www.hmy3.com/hmyk.html' target='_blank'>前往官网<a/>下载发行版！");
-                    return false;
-                }
-                $.get("http://cmd.hmyblog.com/upgrade/shop/" + version, function(e){
+
+                $.get("/admin/dashboard/checkUpgrade", function(e){
                     if(e.code == 400 && e.msg == '暂无更新'){
                         $("#check-update").html("当前已是最新版本");
-                    }else{
+                    }else if(e.code == 200){
+                        $("#check-update").html("发现新版本v" + e.data.version + " <a data-href='/admin/upgrade/index/file/' id='download-update' style='cursor: pointer;'>下载更新</a>");
+                    }else if(e.code == 401){
                         $("#check-update").html(e.msg);
                     }
                 }, "json");
