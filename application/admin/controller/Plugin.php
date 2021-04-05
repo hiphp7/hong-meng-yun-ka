@@ -68,8 +68,15 @@ class Plugin extends Backend {
     public function install(){
         $id = $this->request->param('ids');
 
+
+        //获取插件信息
         $result = json_decode(Http::get($this->domain . 'api/plugin/detail/id/' . $id), true);
         $info = $result['data'];
+
+        if($this->version < $info['support']){
+            $this->error('当前程序版本过低，请更新程序');
+        }
+
 
         $dir = ROOT_PATH . "runtime/plugin/"; //插件本地临时存储路径
 

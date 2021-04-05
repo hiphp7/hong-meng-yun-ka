@@ -52,15 +52,15 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                             field: 'status',
                             title: __('订单状态'),
                             formatter: function(value){
-                                if(value == -1){
+                                if(value == 'yiguoqi'){
                                     return '<span class="label label-default">已过期</span>';
-                                }else if(value == 0){
+                                }else if(value == 'weizhifu'){
                                     return '<span class="label label-default">未支付</span>';
-                                }else if(value == 1){
+                                }else if(value == 'daifahuo'){
                                     return '<span class="label label-danger">待发货</span>';
-                                }else if(value == 2){
+                                }else if(value == 'yifahuo'){
                                     return '<span class="label label-success">已发货</span>';
-                                }else if(value == 9){
+                                }else if(value == 'success'){
                                     return '<span class="label label-success">已完成</span>';
                                 }else {
                                     return '<span class="label label-warning">状态有误</span>';

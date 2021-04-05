@@ -19,9 +19,9 @@ use think\Validate;
  */
 class Backend extends Controller {
 	
-//	public $version = "1.1.0";
+//	public $version = "1.3.0";
 	public $version = "开发版";
-	
+
 
     /**
      * 无需登录的方法,同时也就不需要鉴权了

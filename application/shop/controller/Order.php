@@ -57,7 +57,7 @@ class Order extends Base {
     public function shouhuo(){
         $order_id = $this->request->param('order_id');
         $update = [
-            'status' => 9
+            'status' => 'success'
         ];
         $user = Hm::getUser(); //获取当前用户信息
         $where = [
@@ -76,7 +76,6 @@ class Order extends Base {
             "id" => $order_id,
             'uid' => $user['id']
         ];
-//        print_r($where);die;
         db::name('order')->where($where)->delete();
         return json(['msg' => '已删除', 'code' => 200]);
     }
@@ -93,13 +92,12 @@ class Order extends Base {
 			if(time() - $order['createtime'] >= 600){
 				return json(['msg' => '订单已过期', 'code' => 400]);
 			}
-			if($order['status'] != '0' && $order['status'] != '-1'){
+			if($order['status'] != 'weizhifu' && $order['status'] != 'yiguoqi'){
                 return json(['code' => 200, 'msg' => '已支付', 'data' => 1]);
 			}else{
                 return json(['code' => 200, 'msg' => '未支付', 'data' => -1]);
 			}
-			
-            $pay = $pay && $order['pay'] != 1 ? true : false;
+
         }else if($table == 'money_bill'){
             $pay = db::name($table)->where(['order_no' => $order_no])->value('status');
             $pay = $pay && $pay != 0 ? true : false;

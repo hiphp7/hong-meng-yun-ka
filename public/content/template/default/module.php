@@ -46,8 +46,6 @@ function pay_list(){
 
 	$pay = db::name('pay')->where($where)->select();
 
-//	echo '<pre>'; print_r($pay);die;
-
 	foreach($pay as $key => $val){
 		$pay_info = json_decode($val['value'], true);
 		if($val['type'] == 'alipay' || isset($pay_info['alipay'])){

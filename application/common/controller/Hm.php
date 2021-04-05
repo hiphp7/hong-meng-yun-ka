@@ -92,13 +92,13 @@ class Hm{
 
         foreach($list as &$val){
 
-            if($val['status'] == -1){
+            if($val['status'] == 'yiguoqi'){
                 $val['s'] = '订单已失效';
-            }elseif($val['status'] == 0 && $timestamp - $val['createtime'] >= 600){
+            }elseif($val['status'] == 'weizhifu' && $timestamp - $val['createtime'] >= 600){
                 $val['s'] = '订单已失效';
-                db::name('order')->where(['id' => $val['id']])->update(['status' => -1]);
-                $val['status'] = -1;
-            }elseif($val['status'] == 0){
+                db::name('order')->where(['id' => $val['id']])->update(['status' => 'yiguoqi']);
+                $val['status'] = 'yiguoqi';
+            }elseif($val['status'] == 'weizhifu'){
                 $val['s'] = '待付款';
             }elseif($val['status'] == 'daifahuo'){
                 $val['s'] = '待发货';
