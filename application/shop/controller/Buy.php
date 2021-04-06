@@ -143,7 +143,10 @@ class Buy extends Base {
         if ($goods['type'] == 'own' && $post['goods_num'] > $goods['stock']) {
             $this->error('库存不足，请联系客服添加库存');
         }
+
         $user = Hm::getUser(); //获取当前用户信息
+        
+        // var_dump($user);die;
 
         //写入订单
         $order_id = $post['order_id']; //订单编号

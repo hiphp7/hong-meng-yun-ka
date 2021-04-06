@@ -126,22 +126,24 @@ class Hm{
             $user = db::name('user')->where(['id' => session::get('uid')])->find();
             if(!$user){
                 session::delete('uid');
-                self::getUser();
+                return self::getUser();
             }
         }else{ //游客
             if(session::has('tourist_id')){ //已生成游客id
                 $user = db::name('user')->where(['id' => session::get('tourist_id')])->find();
                 if(!$user){
                     session::delete('tourist_id');
-                    self::getUser();
+                    return self::getUser();
                 }
             }else{ //未生成游客id
                 $tourist = cookie('tourist');
                 if($tourist){ //老游客查找
                     $user = db::name('user')->where(['tourist' => $tourist])->find();
                     if(!$user){
+                        
                         cookie('tourist', null);
-                        self::getUser();
+                        session::delete('tourist_id');
+                        return self::getUser();
                     }
                 }else{ //新游客生成
                     $timestamp = time();
@@ -157,7 +159,9 @@ class Hm{
                     ];
                     db::name('user')->insert($insert);
                     $user = db::name('user')->where(['tourist' => $tourist])->find();
+                    
                 }
+                // var_dump($user);
                 session::set('tourist_id', $user['id']);
             }
         }

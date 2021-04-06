@@ -16,6 +16,7 @@ class Codepay extends Base {
 
 
     public $codepay_url = 'http://api5.xiuxiu888.com/';
+    // public $codepay_url = 'http://api5.xiuxiu888.com/creat_order/';
 
     /**
      * 码支付
@@ -38,7 +39,8 @@ class Codepay extends Base {
             "price"      => $order['money'],//金额100元
             "param"      => "",//自定义参数
             "notify_url" => $this->domain . 'shop/notify/order/type/codepay',//通知地址
-            "page"       => 4, 'outTime' => 600
+            "page"       => 4, 
+            'outTime' => 600
         ]; //构造需要传递的参数
 
         $sign = $this->getSignUrl($data, $codepay_key);
