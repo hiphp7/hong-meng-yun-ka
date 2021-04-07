@@ -38,6 +38,31 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             };
             // 初始化表格
             table.bootstrapTable(tableOptions);
+            
+            
+            Table.button.dragsort = {
+                name: 'dragsort',
+                text: __('排序'),
+                icon: 'fa fa-arrows',
+                title: __('排序'),
+                classname: 'btn btn-xs btn-primary btn-dragsort'
+            }
+
+            Table.button.edit = {
+                name: 'edit',
+                text: __('编辑'),
+                icon: 'fa fa-pencil',
+                title: __('编辑'),
+                classname: 'btn btn-xs btn-success btn-editone'
+            }
+
+            Table.button.del = {
+                name: 'del',
+                text: __('删除'),
+                icon: 'fa fa-trash',
+                title: __('删除'),
+                classname: 'btn btn-xs btn-danger btn-delone'
+            }
 
             // 为表格绑定事件
             Table.api.bindevent(table);
