@@ -28,7 +28,7 @@ class Vpay extends Base {
     }
 
     /**
-     * 码支付
+     * v支付
      * @order 订单信息
      * @pay_type 支付类型
      */
@@ -42,11 +42,18 @@ class Vpay extends Base {
             "isHtml"         => 1,//传入1则自动跳转到支付页面，否则返回创建结果的json数据
             "notify_url" => $this->domain . 'shop/notify/order/type/vpay',//异步通知地址
             "return_url" => $this->domain . 'order/all.html',//付款完成后的跳转地址
+            
         ]; //构造需要传递的参数
+        
+        
+        // echo '<pre>'; print_r($data);die;
+        
 //echo $data['payId'] . $data['param'] . $data['type'] . $data['price'];die;
         $data['sign'] = md5($data['payId'] . $data['param'] . $data['type'] . $data['price'] . $this->secret_key);
+        
+        // echo $this->gateway_url;die;
 
-        $sHtml = "<form id='alipaysubmit' name='alipaysubmit' action='".$this->gateway_url."' method='post'>";
+        $sHtml = "<form id='alipaysubmit' name='alipaysubmit' action='".$this->gateway_url."createOrder' method='post'>";
         foreach ($data as $key=>$val) {
             $sHtml.= "<input type='hidden' name='".$key."' value='".$val."'/>";
         }

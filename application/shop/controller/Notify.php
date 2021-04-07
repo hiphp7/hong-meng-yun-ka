@@ -21,8 +21,10 @@ class Notify extends Base {
     //订单回调
     public function order() {
 
-
+        db::name('test')->insert(['content' => 'vvvv' . '------']);
 		$pay_type = $this->request->param('type'); //支付类型
+		
+		
 
 		$check_sign = false; //验签
 
@@ -101,6 +103,7 @@ class Notify extends Base {
 
 
         }elseif($pay_type == 'vpay'){ //v免签验签。
+                db::name('test')->insert(['content' => 'vpay' . '------']);
             try {
                 $epay = new Vpay();
 
@@ -116,6 +119,7 @@ class Notify extends Base {
                 if ($_sign == $sign) {
                     $check_sign = true;
                     $order_no = $payId;
+                    db::name('test')->insert(['content' => $order_no . '------']);
 
                 }else{
                     db::name('test')->insert(['content' => 'v免签验签失败！']);
@@ -196,11 +200,7 @@ class Notify extends Base {
         // db::name('test')->insert(['content' => $result]);
         $result = json_decode($result, true);
         if($result['status'] == 1){
-            $update = [
-                'status' => 'yifahuo', //发货状态
-                'paytime' => time(), //支付时间
-            ];
-            db::name('order')->where(['id' => $order['id']])->update($update);
+            db::name('order')->where(['id' => $order['id']])->update(['status' => 'yifahuo']);
         }
     }
 
