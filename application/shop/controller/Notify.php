@@ -196,7 +196,11 @@ class Notify extends Base {
         // db::name('test')->insert(['content' => $result]);
         $result = json_decode($result, true);
         if($result['status'] == 1){
-            db::name('order')->where(['id' => $order['id']])->update(['status' => 'yifahuo']);
+            $update = [
+                'status' => 'yifahuo', //发货状态
+                'paytime' => time(), //支付时间
+            ];
+            db::name('order')->where(['id' => $order['id']])->update($update);
         }
     }
 
