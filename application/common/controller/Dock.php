@@ -30,7 +30,7 @@ class Dock{
                 $account = $info['account'];
                 $password = md5($info['password']);
                 $url = $domain . 'index.php?m=home&c=api&a=user_get_goods_lists_details&Api_UserName=' . $account . '&Api_UserMd5Pass=' . $password;
-                $result = file_get_contents($url);
+                $result = hmCurl($url);
                 $result = json_decode($result, true);
                 $list = $result['user_goods_lists_details'];
                 $list = self::handle_list_wujiu($list);

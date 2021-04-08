@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50644
 File Encoding         : 65001
 
-Date: 2021-04-06 22:15:33
+Date: 2021-04-08 22:42:59
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -41,7 +41,7 @@ CREATE TABLE `hm_admin` (
 -- ----------------------------
 -- Records of hm_admin
 -- ----------------------------
-INSERT INTO `hm_admin` VALUES ('1', 'admin', 'Admin', '010e7c10aec338db776976dadaa8fb63', 'fc0226', '/assets/img/avatar.png', 'admin@admin.com', '0', '1617603243', '127.0.0.1', '1492186163', '1617603243', 'c5030536-5119-4fa9-8585-a4d7134e3181', 'normal');
+INSERT INTO `hm_admin` VALUES ('1', 'admin', 'Admin', '010e7c10aec338db776976dadaa8fb63', 'fc0226', '/assets/img/avatar.png', 'admin@admin.com', '0', '1617802984', '127.0.0.1', '1492186163', '1617802984', '5eb04d25-2931-44e8-ae39-4cb123777ffd', 'normal');
 
 -- ----------------------------
 -- Table structure for hm_admin_log
@@ -233,7 +233,7 @@ CREATE TABLE `hm_config` (
 INSERT INTO `hm_config` VALUES ('1', 'shop_title', 'basic', '网站标题', '', 'string', '红盟云卡在线自动发卡系统 - 全国最大的虚拟货源销售平台', '', '', '', '{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"}');
 INSERT INTO `hm_config` VALUES ('2', 'shop_pet_name', 'basic', '网站名称', '', 'string', '红盟云卡', '', '', '', '{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"}');
 INSERT INTO `hm_config` VALUES ('3', 'beian', 'basic', 'Beian', '粤ICP备15000000号-1', 'string', '', '', '', '', null);
-INSERT INTO `hm_config` VALUES ('4', 'version', 'other', '后台静态文件版本', '如果静态资源有变动请重新配置该值', 'string', '1616675516', '', 'required', '', null);
+INSERT INTO `hm_config` VALUES ('4', 'version', 'other', '后台静态文件版本', '如果静态资源有变动请重新配置该值', 'string', '1617802073', '', 'required', '', null);
 INSERT INTO `hm_config` VALUES ('5', 'fixedpage', 'other', 'Fixed page', '请尽量输入左侧菜单栏存在的链接', 'string', 'dashboard', '', 'required', '', null);
 INSERT INTO `hm_config` VALUES ('6', 'configgroup', 'dictionary', 'Config group', '', 'array', '{\"basic\":\"Basic\",\"money\":\"资金配置\",\"other\":\"其他配置\"}', '', '', '', null);
 INSERT INTO `hm_config` VALUES ('7', 'min_cashout', 'money', '最低提现金额', '0则不限制金额', 'number', '0', '', '', '', '{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"}');
@@ -395,7 +395,7 @@ INSERT INTO `hm_options` VALUES ('2', 'user_total', '0');
 INSERT INTO `hm_options` VALUES ('3', 'order_total', '0');
 INSERT INTO `hm_options` VALUES ('4', 'money_total', '0');
 INSERT INTO `hm_options` VALUES ('5', 'goods_total', '0');
-INSERT INTO `hm_options` VALUES ('6', 'active_plugin', 'a:1:{i:1;s:37:\"noticeOrderEmail/noticeOrderEmail.php\";}');
+INSERT INTO `hm_options` VALUES ('6', 'active_plugin', '');
 
 -- ----------------------------
 -- Table structure for hm_order
@@ -417,7 +417,7 @@ CREATE TABLE `hm_order` (
   `remote_money` decimal(10,2) DEFAULT '0.00' COMMENT '进货价格',
   `pay_type` varchar(255) DEFAULT NULL COMMENT '支付方式',
   `kami` text,
-  `goods_type` tinyint(1) DEFAULT '0' COMMENT '0 卡密 1 激活码 2账号和密码',
+  `goods_type` varchar(15) DEFAULT '0' COMMENT '0 卡密 1 激活码 2账号和密码',
   `status` varchar(20) DEFAULT 'weizhifu' COMMENT '订单状态 1代发货 2待收货 9已完成',
   `qr_code` varchar(255) DEFAULT NULL COMMENT '收款二维码',
   `createtime` int(10) DEFAULT '0' COMMENT '创建时间',

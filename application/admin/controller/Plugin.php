@@ -14,7 +14,7 @@ use think\Db;
  */
 class Plugin extends Backend {
 
-    public $domain = "http://127.0.0.1:3503/";
+    public $domain = "http://www.hmy3.com/";
 
     /**
      * Plugin模型对象
@@ -40,7 +40,7 @@ class Plugin extends Backend {
 
     /**
      * 插件设置
-    */
+     */
     public function setting(){
         $plugin = $this->request->param('plugin_name');
 
@@ -64,16 +64,15 @@ class Plugin extends Backend {
 
     /**
      * 安装插件
-    */
+     */
     public function install(){
         $id = $this->request->param('ids');
 
 
         //获取插件信息
-        $result = json_decode(Http::get($this->domain . 'api/plugin/detail/id/' . $id), true);
+        $result = json_decode(hmCurl($this->domain . 'api/plugin/detail/id/' . $id), true);
         $info = $result['data'];
-
-        if($this->version < $info['support']){
+        if($this->version != '开发版' && $this->version < $info['support']){
             $this->error('当前程序版本过低，请更新程序');
         }
 
@@ -116,7 +115,7 @@ class Plugin extends Backend {
 
     /**
      * 远程下载文件到本地
-    */
+     */
     public function download_file($url, $dir, $filename = '') {
         if (empty($url)) {
             return false;
@@ -223,7 +222,10 @@ class Plugin extends Backend {
                 return $this->selectpage();
             }
             $url = $this->domain . "api/plugin/list";
-            $result = json_decode(Http::get($url), true);
+            // echo $url;die;
+            $result = json_decode(hmCurl($url), true);
+
+
 
             $hmPlugins = [];
             $pluginFiles = [];
@@ -267,6 +269,7 @@ class Plugin extends Backend {
                 $hmPlugins[] = $pluginData;
             }
 
+
             foreach($result['data'] as &$val){
                 $val['install'] = false;
                 foreach($hmPlugins as $v){
@@ -282,9 +285,6 @@ class Plugin extends Backend {
             $result = ["total" => $result['total'], "rows" => $result['data']];
 
             return json($result);
-
-            print_r($result);die;
-
 
 
             $result = ["total" => count($hmPlugins), "rows" => $hmPlugins];
@@ -336,7 +336,7 @@ class Plugin extends Backend {
                 }
             }
 
-//            sort($pluginFiles);
+            //            sort($pluginFiles);
 
             $active_plugins = Db::name('options')->where(['option_name' => 'active_plugin'])->value('option_content');
             $active_plugins = empty($active_plugins) ? [] : unserialize($active_plugins);

@@ -21,63 +21,62 @@ class Notify extends Base {
     //订单回调
     public function order() {
 
-        db::name('test')->insert(['content' => 'vvvv' . '------']);
-		$pay_type = $this->request->param('type'); //支付类型
-		
-		
-
-		$check_sign = false; //验签
-
-
-		if($pay_type == 'codepay'){ //码支付验签
-
-    		try{
-    		    $codepay_result = db::name('pay')->where(['type' => 'codepay'])->find();
-    			$codepay = json_decode($codepay_result['value'], true);
-
-    			$codepay_key= $codepay['codepay_key']; //这是您的通讯密钥
-
-    			$post = $this->request->post();
-
-    			ksort($post); //排序post参数
-    			reset($post); //内部指针指向数组中的第一个元素
-
-    			$sign = '';//初始化
-    			foreach ($post as $key => $val) { //遍历POST参数
-    				if ($val == '' || $key == 'sign'){
-    					continue; //跳过这些不签名
-    				}
-    				if ($sign){
-    					$sign .= '&'; //第一个字符串签名不加& 其他加&连接起来参数
-    				}
-    				$sign .= "$key=$val"; //拼接为url参数形式
-    			}
-    			if (!$post['pay_no'] || md5($sign . $codepay_key) != $post['sign']) { //不合法的数据
-    				exit('fail');  //返回失败 继续补单
-    			} else { //合法的数据
-    				//业务处理
-    				$check_sign = true;
-    				$order_no = $post['pay_id']; //需要充值的ID 或订单号 或用户名
-    			}
-    		}catch(\Exception $e){
-    		    db::name('test')->insert(['content' => $e->getMessage() . $e->getLine() . $e->getFile()]);
-    		}
+        $pay_type = $this->request->param('type'); //支付类型
 
 
 
-		}elseif($pay_type == 'alipay'){ //支付宝验签
+        $check_sign = false; //验签
 
-		    try {
-		        //接收回调报文
-    			$content = file_get_contents("php://input");
 
-    			//调用支付宝验签方法
-    			$check_sign = $this->ali_check_sign($content);
-    			$order_no = empty($check_sign['order_no']) ? null : $check_sign['order_no'];
-		    } catch (\Exception $e) {
-		        db::name('test')->insert(['content' => $e->getMessage() . $e->getLine() . $e->getFile()]);
-		    }
-		}elseif($pay_type == 'epay'){ //易支付验签
+        if($pay_type == 'codepay'){ //码支付验签
+
+            try{
+                $codepay_result = db::name('pay')->where(['type' => 'codepay'])->find();
+                $codepay = json_decode($codepay_result['value'], true);
+
+                $codepay_key= $codepay['codepay_key']; //这是您的通讯密钥
+
+                $post = $this->request->post();
+
+                ksort($post); //排序post参数
+                reset($post); //内部指针指向数组中的第一个元素
+
+                $sign = '';//初始化
+                foreach ($post as $key => $val) { //遍历POST参数
+                    if ($val == '' || $key == 'sign'){
+                        continue; //跳过这些不签名
+                    }
+                    if ($sign){
+                        $sign .= '&'; //第一个字符串签名不加& 其他加&连接起来参数
+                    }
+                    $sign .= "$key=$val"; //拼接为url参数形式
+                }
+                if (!$post['pay_no'] || md5($sign . $codepay_key) != $post['sign']) { //不合法的数据
+                    exit('fail');  //返回失败 继续补单
+                } else { //合法的数据
+                    //业务处理
+                    $check_sign = true;
+                    $order_no = $post['pay_id']; //需要充值的ID 或订单号 或用户名
+                }
+            }catch(\Exception $e){
+                db::name('test')->insert(['content' => $e->getMessage() . $e->getLine() . $e->getFile()]);
+            }
+
+
+
+        }elseif($pay_type == 'alipay'){ //支付宝验签
+
+            try {
+                //接收回调报文
+                $content = file_get_contents("php://input");
+
+                //调用支付宝验签方法
+                $check_sign = $this->ali_check_sign($content);
+                $order_no = empty($check_sign['order_no']) ? null : $check_sign['order_no'];
+            } catch (\Exception $e) {
+                db::name('test')->insert(['content' => $e->getMessage() . $e->getLine() . $e->getFile()]);
+            }
+        }elseif($pay_type == 'epay'){ //易支付验签
             try {
                 $epay = new Epay();
 
@@ -103,7 +102,7 @@ class Notify extends Base {
 
 
         }elseif($pay_type == 'vpay'){ //v免签验签。
-                db::name('test')->insert(['content' => 'vpay' . '------']);
+            db::name('test')->insert(['content' => 'vpay' . '------']);
             try {
                 $epay = new Vpay();
 
@@ -136,18 +135,18 @@ class Notify extends Base {
 
         if($check_sign){ //验签成功
 
-            $order = db::name('order')->where(['order_no' => $order_no, 'status' => ['neq', 0]])->find();
-                
+            $order = db::name('order')->where(['order_no' => $order_no, 'status' => 'weizhifu'])->find();
+
             if (!$order) {
                 echo 'success';
                 die;
             }
-            
+
             // db::startTrans();
             try {
 
                 $goods = db::name('goods')->where(['id' => $order['goods_id']])->find();
-                
+
                 $timestamp = time();
 
                 //1, 记录用户账单，增加用户消费金额
@@ -180,9 +179,9 @@ class Notify extends Base {
     public function handle_order_jiuwu($goods, $order){
         $site = db::name('docking_site')->where(['id' => $goods['site_id']])->find();
         $site_info = json_decode($site['info'], true);
-        
+
         $dock_data = json_decode($goods['dock_data'], true);
-        
+
         $url = $site["domain"] . "index.php?m=home&c=order&a=ly_add";
         $params = [
             "Api_UserName" => $site_info['account'],
@@ -299,22 +298,22 @@ class Notify extends Base {
     }
 
 
-	//获取商品的卡密
+    //获取商品的卡密
     /**
      * return @kami 取出的卡密
      * return @goods_kami 剩余的卡密
-    */
+     */
     public function getKami($goods_id, $goods_num) {
         $kami_result = db::name('cdkey')->where(['goods_id' => $goods_id])->limit($goods_num)->select();
-		$kami = [];
-		foreach($kami_result as $key => $val){
-			db::name('cdkey')->where(['id' => $val['id']])->delete();
-			$kami[] = $val['cdk'];
-		}
+        $kami = [];
+        foreach($kami_result as $key => $val){
+            db::name('cdkey')->where(['id' => $val['id']])->delete();
+            $kami[] = $val['cdk'];
+        }
 
-		$kami = implode("\r\n", $kami);
+        $kami = implode("\r\n", $kami);
 
-		return $kami;
+        return $kami;
 
     }
 

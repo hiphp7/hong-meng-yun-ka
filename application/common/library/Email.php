@@ -49,12 +49,13 @@ class Email
      * 构造函数
      * @param array $options
      */
-    public function __construct($options = [])
-    {
-        if ($config = Config::get('site')) {
-            $this->options = array_merge($this->options, $config);
-        }
-        $this->options = array_merge($this->options, $options);
+    public function __construct($options = []){
+        $options['charset'] = 'utf-8';
+        $options['debug'] = false;
+        $this->options = $options;
+
+        // echo '<pre>'; print_r($this->options);die;
+
         $securArr = [1 => 'tls', 2 => 'ssl'];
 
         $this->mail = new \PHPMailer\PHPMailer\PHPMailer(true);
