@@ -199,7 +199,7 @@ class Notify extends Base {
         // db::name('test')->insert(['content' => $result]);
         $result = json_decode($result, true);
         if($result['status'] == 1){
-            db::name('order')->where(['id' => $order['id']])->update(['status' => 'yifahuo']);
+            db::name('order')->where(['id' => $order['id']])->update(['status' => 'success']);
         }
     }
 
