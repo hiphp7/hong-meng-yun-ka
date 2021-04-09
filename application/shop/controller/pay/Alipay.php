@@ -98,7 +98,7 @@ class Alipay extends Base {
             $data['method'] = 'alipay.trade.precreate'; //接口名称  - 当面付
             $data['biz_content'] = json_encode($biz_content); //请求参数的集合
             $data['sign'] = $this->getAlipaySign($data, ['private_key' => $payInfo['private_key']]);
-            $result = Http::post($this->gateway_url, $data);
+            $result = hmCurl($this->gateway_url, http_build_query($data), true);
             $result = json_decode($result, true);
             if (empty($result)) {
                 $this->error("发起支付宝当面付出现系统错误，请重试");

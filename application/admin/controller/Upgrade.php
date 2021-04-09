@@ -87,7 +87,7 @@ class Upgrade extends Backend {
 
             $this->version = $upgrade["version"]; //更新本次版本号准备检测下个版本
 
-			$this->index(); //递归更新
+			return $this->index(); //递归更新
 
         } else {
             unlink($path);

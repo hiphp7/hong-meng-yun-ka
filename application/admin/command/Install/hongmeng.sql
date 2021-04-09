@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50644
 File Encoding         : 65001
 
-Date: 2021-04-08 22:42:59
+Date: 2021-04-09 22:47:23
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -41,7 +41,7 @@ CREATE TABLE `hm_admin` (
 -- ----------------------------
 -- Records of hm_admin
 -- ----------------------------
-INSERT INTO `hm_admin` VALUES ('1', 'admin', 'Admin', '010e7c10aec338db776976dadaa8fb63', 'fc0226', '/assets/img/avatar.png', 'admin@admin.com', '0', '1617802984', '127.0.0.1', '1492186163', '1617802984', '5eb04d25-2931-44e8-ae39-4cb123777ffd', 'normal');
+INSERT INTO `hm_admin` VALUES ('1', 'admin', 'Admin', '373fb601b70b7e1c373c8ca6c6afdb73', '846ef9', '/assets/img/avatar.png', 'admin@admin.com', '0', '1617802984', '127.0.0.1', '1492186163', '1617802984', '5eb04d25-2931-44e8-ae39-4cb123777ffd', 'normal');
 
 -- ----------------------------
 -- Table structure for hm_admin_log
@@ -233,7 +233,7 @@ CREATE TABLE `hm_config` (
 INSERT INTO `hm_config` VALUES ('1', 'shop_title', 'basic', '网站标题', '', 'string', '红盟云卡在线自动发卡系统 - 全国最大的虚拟货源销售平台', '', '', '', '{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"}');
 INSERT INTO `hm_config` VALUES ('2', 'shop_pet_name', 'basic', '网站名称', '', 'string', '红盟云卡', '', '', '', '{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"}');
 INSERT INTO `hm_config` VALUES ('3', 'beian', 'basic', 'Beian', '粤ICP备15000000号-1', 'string', '', '', '', '', null);
-INSERT INTO `hm_config` VALUES ('4', 'version', 'other', '后台静态文件版本', '如果静态资源有变动请重新配置该值', 'string', '1617802073', '', 'required', '', null);
+INSERT INTO `hm_config` VALUES ('4', 'version', 'other', '后台静态文件版本', '如果静态资源有变动请重新配置该值', 'string', '1617802074', '', 'required', '', null);
 INSERT INTO `hm_config` VALUES ('5', 'fixedpage', 'other', 'Fixed page', '请尽量输入左侧菜单栏存在的链接', 'string', 'dashboard', '', 'required', '', null);
 INSERT INTO `hm_config` VALUES ('6', 'configgroup', 'dictionary', 'Config group', '', 'array', '{\"basic\":\"Basic\",\"money\":\"资金配置\",\"other\":\"其他配置\"}', '', '', '', null);
 INSERT INTO `hm_config` VALUES ('7', 'min_cashout', 'money', '最低提现金额', '0则不限制金额', 'number', '0', '', '', '', '{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"}');
@@ -243,7 +243,7 @@ INSERT INTO `hm_config` VALUES ('10', 'tourist_buy', 'basic', '游客购买', ''
 INSERT INTO `hm_config` VALUES ('11', 'login', 'basic', '登录功能', '', 'radio', '1', '{\"1\":\"开启\",\"0\":\"关闭\"}', '', '', '{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"}');
 INSERT INTO `hm_config` VALUES ('12', 'register', 'basic', '注册功能', '', 'radio', '1', '{\"1\":\"开启\",\"0\":\"关闭\"}', '', '', '{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"}');
 INSERT INTO `hm_config` VALUES ('13', 'statistics', 'basic', '统计代码', '第三方流量统计代码', 'text', '', '', '', '', '{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"}');
-INSERT INTO `hm_config` VALUES ('21', 'diy_name', 'other', '商品自定义支付名称', '此选项可以替换官方支付接口的商品名称，留空使用原商品名称。', 'string', '红盟云卡商品购买', null, '', '', null);
+INSERT INTO `hm_config` VALUES ('14', 'diy_name', 'other', '商品自定义支付名称', '此选项可以替换官方支付接口的商品名称，留空使用原商品名称。', 'string', '商品购买', null, '', '', null);
 
 -- ----------------------------
 -- Table structure for hm_docking_increase
@@ -493,7 +493,7 @@ CREATE TABLE `hm_template` (
 -- ----------------------------
 -- Records of hm_template
 -- ----------------------------
-INSERT INTO `hm_template` VALUES ('1', 'default', '默认模板', '红盟云商', '1.0.0', '0', '/content/template/default/cover.jpg', '0', '0', '1');
+INSERT INTO `hm_template` VALUES ('1', 'default', '默认模板', '红盟云商', '1.0.1', '0', '/content/template/default/cover.jpg', '0', '0', '1');
 
 -- ----------------------------
 -- Table structure for hm_test
