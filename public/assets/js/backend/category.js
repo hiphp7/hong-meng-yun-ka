@@ -2,6 +2,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
     var Controller = {
         index: function () {
+            $.fn.bootstrapTable.locales[Table.defaults.locale]['formatSearch'] = function(){return "请输入分类名称查询";};
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
@@ -22,15 +23,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 sortName: 'weigh',
                 pagination: false,
                 commonSearch: false,
-                search: false,
+                // search: false,
                 columns: [
                     [
                         {checkbox: true},
-//                        {field: 'type', title: __('Type'), operate: false, searchList: Config.searchList, formatter: Table.api.formatter.label},
-                        {field: 'name', title: __('Name'), align: 'left', formatter:function (value, row, index) {
-                                return value.toString().replace(/(&|&amp;)nbsp;/g, '&nbsp;');
-                            }
-                        },
+                        {field: 'name', title: __('Name'), align: 'left'},
                         {field: 'status', title: __('Status'), operate: false, formatter: Table.api.formatter.status},
                         {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
                     ]
@@ -38,8 +35,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             };
             // 初始化表格
             table.bootstrapTable(tableOptions);
-            
-            
+
+
             Table.button.dragsort = {
                 name: 'dragsort',
                 text: __('排序'),

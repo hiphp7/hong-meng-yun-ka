@@ -20,6 +20,7 @@ class Category extends Backend {
     protected $model = null;
     protected $categorylist = [];
     protected $noNeedRight = ['selectpage'];
+    protected $searchFields = 'name';
 
     public function _initialize() {
         parent::_initialize();
@@ -43,32 +44,12 @@ class Category extends Backend {
         //设置过滤方法
         $this->request->filter(['strip_tags']);
         if ($this->request->isAjax()) {
-            $search = $this->request->request("search");
-            $type = $this->request->request("type");
 
-            //构造父类select列表选项数据
-            $list = [];
+            list($where, $sort, $order, $offset, $limit) = $this->buildparams();
 
-            foreach ($this->categorylist as $k => $v) {
-                if ($search) {
-                    if ($v['type'] == $type && stripos($v['name'], $search) !== false || stripos($v['nickname'], $search) !== false) {
-                        if ($type == "all" || $type == null) {
-                            $list = $this->categorylist;
-                        } else {
-                            $list[] = $v;
-                        }
-                    }
-                } else {
-                    if ($type == "all" || $type == null) {
-                        $list = $this->categorylist;
-                    } elseif ($v['type'] == $type) {
-                        $list[] = $v;
-                    }
-                }
-            }
+            $list = $this->model->where($where)->order($sort, $order)->paginate($limit);
 
-            $total = count($list);
-            $result = ["total" => $total, "rows" => $list];
+            $result = ["total" => $list->total(), "rows" => $list->items()];
 
             return json($result);
         }

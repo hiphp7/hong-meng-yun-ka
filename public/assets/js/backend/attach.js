@@ -2,6 +2,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
     var Controller = {
         index: function () {
+            $.fn.bootstrapTable.locales[Table.defaults.locale]['formatSearch'] = function(){return "请输入名称查询";};
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
@@ -22,6 +23,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
                 pk: 'id',
                 sortName: 'id',
+                commonSearch: false,
                 columns: [
                     [
                         {checkbox: true},
