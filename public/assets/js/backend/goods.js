@@ -225,11 +225,14 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
             var table = $("#table");
 
+            $.fn.bootstrapTable.locales[Table.defaults.locale]['formatSearch'] = function(){return "请输入商品名称查询";};
+
             // 初始化表格
             table.bootstrapTable({
                 url: 'goods/recyclebin' + location.search,
                 pk: 'id',
                 sortName: 'id',
+                commonSearch: false,
                 columns: [
                     [
                         {checkbox: true},

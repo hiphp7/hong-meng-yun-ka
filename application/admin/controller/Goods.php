@@ -50,6 +50,26 @@ class Goods extends Backend {
      * 需要将application/admin/library/traits/Backend.php中对应的方法复制到当前控制器,然后进行修改
      */
 
+    /**
+     * 回收站
+     */
+    public function recyclebin() {
+
+        $this->searchFields = 'name';
+        //设置过滤方法
+        $this->request->filter(['strip_tags', 'trim']);
+        if ($this->request->isAjax()) {
+            list($where, $sort, $order, $offset, $limit) = $this->buildparams();
+
+            $list = $this->model->onlyTrashed()->where($where)->order($sort, $order)->paginate($limit);
+
+            $result = ["total" => $list->total(), "rows" => $list->items()];
+
+            return json($result);
+        }
+        return $this->view->fetch();
+    }
+
 	public function stock_add() {
 		$id = $this->request->param('ids');
 		$goods_info = db::name('goods')->where(['id' => $id])->find();
