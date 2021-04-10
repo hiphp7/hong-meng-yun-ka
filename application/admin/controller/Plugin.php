@@ -14,7 +14,7 @@ use think\Db;
  */
 class Plugin extends Backend {
 
-    public $domain = "http://www.hmy3.com/";
+    public $domain = "http://www.hmy3.com";
 
     /**
      * Plugin模型对象
@@ -70,7 +70,7 @@ class Plugin extends Backend {
 
 
         //获取插件信息
-        $result = json_decode(hmCurl($this->domain . 'api/plugin/detail/id/' . $id), true);
+        $result = json_decode(hmCurl($this->domain . '/api/plugin/detail/id/' . $id), true);
         $info = $result['data'];
         if($this->version != '开发版' && $this->version < $info['support']){
             $this->error('当前程序版本过低，请更新程序');
@@ -121,11 +121,6 @@ class Plugin extends Backend {
             return false;
         }
         $ext = strrchr($url, '.');
-        /*if($ext != '.gif' && $ext != ".jpg" && $ext != ".bmp"){
-            echo "格式不支持！";
-            return false;
-        }*/
-
         $dir = realpath($dir);
         //目录+文件
         $filename = (empty($filename) ? '/' . time() . '' . $ext : '/' . $filename);
@@ -221,7 +216,7 @@ class Plugin extends Backend {
             if ($this->request->request('keyField')){
                 return $this->selectpage();
             }
-            $url = $this->domain . "api/plugin/list";
+            $url = $this->domain . "/api/plugin/list";
             // echo $url;die;
             $result = json_decode(hmCurl($url), true);
 
