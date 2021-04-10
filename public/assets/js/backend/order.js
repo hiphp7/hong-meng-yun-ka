@@ -2,6 +2,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
     var Controller = {
         index: function () {
+            $.fn.bootstrapTable.locales[Table.defaults.locale]['formatSearch'] = function(){return "请输入订单号查询";};
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
@@ -22,10 +23,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
                 pk: 'id',
                 sortName: 'id',
+                commonSearch: false,
                 columns: [
                     [
                         {checkbox: true},
-                        {field: 'id', title: __('Id')},
+                        // {field: 'id', title: __('Id')},
                         {field: 'order_no', title: __('订单号')},
                         {field: 'user.nickname', title: __('用户昵称')},
                         {field: 'goods_name', title: __('Goods_name'), operate: 'LIKE'},

@@ -12,8 +12,9 @@ use think\exception\ValidateException;
  *
  * @icon fa fa-circle-o
  */
-class Order extends Backend
-{
+class Order extends Backend {
+
+    protected $searchFields = 'order_no';
 
     /**
      * Order模型对象
@@ -21,15 +22,13 @@ class Order extends Backend
      */
     protected $model = null;
 
-    public function _initialize()
-    {
+    public function _initialize() {
         parent::_initialize();
         $this->model = new \app\admin\model\Order;
 
     }
 
-    public function import()
-    {
+    public function import() {
         parent::import();
     }
 
@@ -53,18 +52,14 @@ class Order extends Backend
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
 
-            $list = $this->model->with('user')
-                ->where($where)
-                ->order($sort, $order)
-                ->paginate($limit);
+            $list = $this->model->with('user')->where($where)->order($sort, $order)->paginate($limit);
 
-            $result = array("total" => $list->total(), "rows" => $list->items());
+            $result = ["total" => $list->total(), "rows" => $list->items()];
 
             return json($result);
         }
         return $this->view->fetch();
     }
-
 
 
     /**
@@ -114,13 +109,13 @@ class Order extends Backend
             }
             $this->error(__('Parameter %s can not be empty', ''));
         }
-        if($row['pay'] == -1){
+        if ($row['pay'] == -1) {
             $row['pay'] = '未支付';
-        }elseif($row['pay'] == 0){
+        } elseif ($row['pay'] == 0) {
             $row['pay'] = '余额';
-        }elseif($row['pay'] == 1){
+        } elseif ($row['pay'] == 1) {
             $row['pay'] = '支付宝';
-        }else{
+        } else {
             $row['pay'] = '错误状态';
         }
         /*$attach_result = json_decode($row['attach'], true);
