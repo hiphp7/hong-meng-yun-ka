@@ -16,6 +16,8 @@ use think\exception\ValidateException;
  */
 class Goods extends Backend {
 
+    protected $searchFields = 'goods.name';
+
     /**
      * Goods模型对象
      * @var \app\admin\model\Goods
@@ -47,7 +49,7 @@ class Goods extends Backend {
      * 因此在当前控制器中可不用编写增删改查的代码,除非需要自己控制这部分逻辑
      * 需要将application/admin/library/traits/Backend.php中对应的方法复制到当前控制器,然后进行修改
      */
-	
+
 	public function stock_add() {
 		$id = $this->request->param('ids');
 		$goods_info = db::name('goods')->where(['id' => $id])->find();
@@ -139,7 +141,7 @@ class Goods extends Backend {
                         $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.add' : $name) : $this->modelValidate;
                         $this->model->validateFailException(true)->validate($validate);
                     }
-					
+
 					if($params["deliver"] == 0){ //自动发货，默认库存
 						unset($params["stock"]);
 					}
@@ -262,7 +264,7 @@ class Goods extends Backend {
         $this->view->assign("row", $row);
         return $this->view->fetch();
     }
-	
+
 	public function stock_del(){
 		$ids = $this->request->param('ids');
 		Db::startTrans();
@@ -287,28 +289,28 @@ class Goods extends Backend {
 			db::rollback();
 			$this->error('删除失败');
 		}
-		
+
 		$this->success('删除成功');
 	}
-	
+
 	/**
 	 * 查看库存
 	 */
 	public function stock(){
-		
+
 		$ids = $this->request->param('ids');
-		
+
 		//设置过滤方法
         $this->request->filter(['strip_tags', 'trim']);
         if ($this->request->isAjax()) {
             $post = $this->request->param();
 			$list = db::name('cdkey')->where(['goods_id' => $ids])->limit($post['offset'], $post['limit'])->select();
 			$total = db::name('cdkey')->where(['goods_id' => $ids])->count();
-			
+
             $result = ["total" => $total, "rows" => $list];
             return json($result);
         }
-		
+
 		$this->assign([
 			'id' => $ids
 		]);
@@ -339,21 +341,21 @@ class Goods extends Backend {
 
         return $this->view->fetch();
     }
-	
-	
+
+
 	//上架商品
 	public function upGoods(){
 		$post = $this->request->param();
 		db::name('goods')->where(['id' => $post['id']])->update(['shelf' => $post['shelf']]);
 		return json(['data' => '', 'msg' => '操作成功', 'code' => 200]);
 	}
-	
+
 	//下架商品
 	public function downGoods(){
 		$post = $this->request->param();
 		db::name('goods')->where(['id' => $post['id']])->update(['shelf' => $post['shelf']]);
 		return json(['data' => '', 'msg' => '操作成功', 'code' => 200]);
 	}
-	
-	
+
+
 }

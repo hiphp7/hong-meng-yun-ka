@@ -16,24 +16,25 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     table: 'goods',
                 }
             });
-            
-            
+
+
             var table = $("#table");
-            
-            
-            
+
+
+
             $(".btn-add").data("area",["1000px","670px"]);
             $(".btn-edit").data("area",["1000px","670px"]);
-            
+
             table.on('post-body.bs.table',function(){
                 $(".btn-editone").data("area",["1000px","670px"]);
             })
-
+            $.fn.bootstrapTable.locales[Table.defaults.locale]['formatSearch'] = function(){return "请输入商品名称查询";};
             // 初始化表格
             table.bootstrapTable({
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
                 pk: 'id',
                 sortName: 'id',
+                commonSearch: false,
                 columns: [
                     [
                         {checkbox: true},
@@ -101,7 +102,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                             }
                         },
                         {
-                            field: 'shelf', 
+                            field: 'shelf',
                             title: __('状态'),
                             formatter:function(value,row,index){
                                 if(value == 0){
@@ -116,9 +117,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         // {field: 'createtime', title: __('Createtime'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
                         // {field: 'updatetime', title: __('Updatetime'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
                         {
-                            field: 'operate', 
-                            title: __('Operate'), 
-                            table: table, 
+                            field: 'operate',
+                            title: __('Operate'),
+                            table: table,
                             events: Table.api.events.operate,
                             buttons: [
                                 {
@@ -130,10 +131,10 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     text:'添加库存',
                                     hidden:function(row){
                                         if(row.deliver == 1 || row.type != 'own'){
-                                            return true; 
+                                            return true;
                                         }
                                     }
-                                    
+
                                 },
                                 {
                                     name: 'admin_stock',
@@ -144,7 +145,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                     text:'管理库存',
                                     hidden:function(row){
                                         if(row.deliver == 1 || row.type != 'own'){
-                                            return true; 
+                                            return true;
                                         }
                                     }
                                 }
@@ -154,7 +155,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     ]
                 ]
             });
-            
+
             Table.button.edit = {
                 name: 'edit',
                 text: __('编辑'),
@@ -162,7 +163,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 title: __('编辑'),
                 classname: 'btn btn-xs btn-success btn-editone'
             }
-            
+
             Table.button.del = {
                 name: 'del',
                 text: __('删除'),
@@ -173,8 +174,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
 
             // 为表格绑定事件
             Table.api.bindevent(table);
-            
-            
+
+
             //上架商品
             $(document).on("click", ".up-goods", function () {
                 var id = $(this).attr('data-id');
@@ -211,8 +212,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     Toastr.error('服务器错误！');
                 })
             });
-            
-            
+
+
         },
         recyclebin: function () {
             // 初始化表格参数配置
@@ -340,7 +341,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             Controller.api.bindevent();
         },
         stock_add: function () {
-            
+
             Controller.api.bindevent();
         },
         edit: function () {
