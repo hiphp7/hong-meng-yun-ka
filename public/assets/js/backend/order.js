@@ -19,7 +19,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             var table = $("#table");
 
             // 初始化表格
-            table.bootstrapTable({
+            var tableOptions = {
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
                 pk: 'id',
                 sortName: 'id',
@@ -29,28 +29,12 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {checkbox: true},
                         // {field: 'id', title: __('Id')},
                         {field: 'order_no', title: __('订单号')},
-                        {field: 'user.nickname', title: __('用户昵称')},
+                        // {field: 'user.nickname', title: __('用户昵称')},
                         {field: 'goods_name', title: __('Goods_name'), operate: 'LIKE'},
                         // {field: 'goods_cover', title: __('Goods_cover'), operate: 'LIKE'},
                         {field: 'goods_money', title: __('商品单价')},
                         {field: 'goods_num', title: __('Goods_num')},
                         {field: 'money', title: __('订单金额'), operate:'BETWEEN'},
-//                        {
-//                            field: 'pay_type',
-//                            title: __('支付方式'),
-//                            formatter: function(value){
-//                                if(value == 'alipay' || value == 'codepay_alipay'){
-//                                    return `<span class="label label-success">支付宝</span>`;
-//                                }else if(value == 'wxpay' || value == 'codepay_wxpay'){
-//                                    return `<span class="label label-info">微信</span>`;
-//                                }else if(value == 'qqpay' || value == 'codepay_qqpay'){
-//                                    return `<span class="label label-warning">QQ</span>`;
-//                                }else{
-//                                    return `<span class="label label-danger">未知</span>`;
-//                                }
-//
-//                            }
-//                        },
                         {
                             field: 'status',
                             title: __('订单状态'),
@@ -76,10 +60,32 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
                     ]
                 ]
-            });
+            };
+
+            // 初始化表格
+            table.bootstrapTable(tableOptions);
 
             // 为表格绑定事件
             Table.api.bindevent(table);
+
+            //绑定TAB事件
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                $('.search > input').val('')
+                // var options = table.bootstrapTable(tableOptions);
+                var typeStr = $(this).attr("href").replace('#', '');
+                var options = table.bootstrapTable('getOptions');
+                options.pageNumber = 1;
+                options.queryParams = function (params) {
+                    // params.filter = JSON.stringify({type: typeStr});
+                    params.status = typeStr;
+
+
+                    return params;
+                };
+                table.bootstrapTable('refresh', {});
+                return false;
+
+            });
         },
         add: function () {
             Controller.api.bindevent();

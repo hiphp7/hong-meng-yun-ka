@@ -50,9 +50,17 @@ class Order extends Backend {
             if ($this->request->request('keyField')) {
                 return $this->selectpage();
             }
+
+            $status = $this->request->param('status');
+            $where_status = [];
+            if(!empty($status) && $status != 'all'){
+                $where_status['order.status'] = $status;
+            }
+
+
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
 
-            $list = $this->model->with('user')->where($where)->order($sort, $order)->paginate($limit);
+            $list = $this->model->with('user')->where($where)->where($where_status)->order($sort, $order)->paginate($limit);
 
             $result = ["total" => $list->total(), "rows" => $list->items()];
 
