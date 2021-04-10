@@ -117,20 +117,7 @@ class Order extends Backend {
             }
             $this->error(__('Parameter %s can not be empty', ''));
         }
-        if ($row['pay'] == -1) {
-            $row['pay'] = '未支付';
-        } elseif ($row['pay'] == 0) {
-            $row['pay'] = '余额';
-        } elseif ($row['pay'] == 1) {
-            $row['pay'] = '支付宝';
-        } else {
-            $row['pay'] = '错误状态';
-        }
-        /*$attach_result = json_decode($row['attach'], true);
-        $attach = [];
-        foreach($attach_result as $key => $val){
-            $attach
-        }*/
+
         $this->view->assign("row", $row);
         return $this->view->fetch();
     }

@@ -29,7 +29,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {checkbox: true},
                         // {field: 'id', title: __('Id')},
                         {field: 'order_no', title: __('订单号')},
-                        // {field: 'user.nickname', title: __('用户昵称')},
+                        {field: 'user.nickname', title: __('用户昵称')},
                         {field: 'goods_name', title: __('Goods_name'), operate: 'LIKE'},
                         // {field: 'goods_cover', title: __('Goods_cover'), operate: 'LIKE'},
                         {field: 'goods_money', title: __('商品单价')},
