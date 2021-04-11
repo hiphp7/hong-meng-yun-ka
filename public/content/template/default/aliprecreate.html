@@ -48,7 +48,7 @@
                         {/if}
 
                     </div>
-                    {if condition="$is_mobile && $order.pay_type == 'alipay'"}
+                    {if condition="$is_mobile && $order.pay_type == 'alipay' && $alipay_wap"}
                     <button type="button" class="layui-btn layui-btn-primary" id="ali_wappay">唤起手机支付宝支付</button>
                     <form class="layui-form layui-form-pane hide" action="{:url('/pay')}" method="get">
                         <input name="pay_type" value="alipay_wap" type="hidden" />
