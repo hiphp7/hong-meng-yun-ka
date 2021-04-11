@@ -28,7 +28,6 @@ class Notify extends Base {
     public function epay_check_sign($data, $mode, $timestamp){
         if(!empty($data)){
             unset($data['mode_type']);
-
             $epay = new Epay();
             $isSign = $epay->getSignVeryfy($data, $data["sign"]); //生成签名结果
             $responseTxt = 'true'; //获取支付宝远程服务器ATN结果（验证是否是支付宝发来的消息）
@@ -54,6 +53,51 @@ class Notify extends Base {
                 }
             }else{
                 db::name('test')->insert(['content' => '易支付验签失败！']);
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
+
+    /**
+     * v免签验签
+     * @params $data 回调数据信息
+     * @params $mode 回调方式
+     * @params $timestamp 回调时间
+     * @return $order 订单信息 验签成功返回订单信息，失败返回false
+     */
+    public function vpay_check_sign($data, $mode, $timestamp){
+        if(!empty($data)){
+            unset($data['mode_type']);
+            $epay = new Vpay();
+            $key = $epay->secret_key;//通讯密钥
+            $payId = $data['payId'];//商户订单号
+            $param = $data['param'];//创建订单的时候传入的参数
+            $type = $data['type'];//支付方式 ：微信支付为1 支付宝支付为2
+            $price = $data['price'];//订单金额
+            $reallyPrice = $data['reallyPrice'];//实际支付金额
+            $sign = $data['sign'];//校验签名，计算方式 = md5(payId + param + type + price + reallyPrice + 通讯密钥)
+            //开始校验签名
+            $_sign =  md5($payId . $param . $type . $price . $reallyPrice . $key);
+            if ($_sign == $sign) {
+                $order = db::name('order')->where(['order_no' => $payId, 'status' => 'weizhifu'])->find();
+                if (!$order) {
+                    if($mode == "return"){
+                        header("location: " . url('/order')); die;
+                    }elseif($mode == "notify"){
+                        echo 'success'; die;
+                    }else{
+                        echo "出错啦~"; die;
+                    }
+                }else{
+                    db::name('order')->where(['id' => $order['id']])->update(['status' => 'daifahuo', 'paytime' => $timestamp]);
+                    return $order;
+                }
+
+            }else{
+                db::name('test')->insert(['content' => 'v免签验签失败！']);
+                return false;
             }
         }else{
             return false;
@@ -69,10 +113,18 @@ class Notify extends Base {
         $mode = $mode_type[0];
         $type = $mode_type[1];
         $timestamp = time(); //时间戳
+
+
         if($type == 'epay'){ //易支付验签
             $data = $this->request->get();
             $order = $this->epay_check_sign($data, $mode, $timestamp);
         }
+        if(type == 'vpay'){ //v免签验签
+            $data = $this->request->get();
+            $order = $this->vpay_check_sign($data, $mode, $timestamp);
+        }
+
+
         if($order){ //验签成功
             try {
                 $goods = db::name('goods')->where(['id' => $order['goods_id']])->find();
@@ -157,35 +209,6 @@ class Notify extends Base {
             } catch (\Exception $e) {
                 db::name('test')->insert(['content' => $e->getMessage() . $e->getLine() . $e->getFile()]);
             }
-        }elseif($pay_type == 'vpay'){ //v免签验签。
-            db::name('test')->insert(['content' => 'vpay' . '------']);
-            try {
-                $epay = new Vpay();
-
-                $key = $epay->secret_key;//通讯密钥
-                $payId = $_GET['payId'];//商户订单号
-                $param = $_GET['param'];//创建订单的时候传入的参数
-                $type = $_GET['type'];//支付方式 ：微信支付为1 支付宝支付为2
-                $price = $_GET['price'];//订单金额
-                $reallyPrice = $_GET['reallyPrice'];//实际支付金额
-                $sign = $_GET['sign'];//校验签名，计算方式 = md5(payId + param + type + price + reallyPrice + 通讯密钥)
-                //开始校验签名
-                $_sign =  md5($payId . $param . $type . $price . $reallyPrice . $key);
-                if ($_sign == $sign) {
-                    $check_sign = true;
-                    $order_no = $payId;
-                    db::name('test')->insert(['content' => $order_no . '------']);
-
-                }else{
-                    db::name('test')->insert(['content' => 'v免签验签失败！']);
-                    echo "error_sign";die;
-                }
-
-            }catch(\Exception $e){
-                db::name('test')->insert(['content' => $e->getMessage() . $e->getLine() . $e->getFile()]);
-            }
-
-
         }
 
 

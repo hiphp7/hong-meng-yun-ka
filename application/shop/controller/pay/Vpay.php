@@ -40,8 +40,8 @@ class Vpay extends Base {
             "price"      => $order['money'],//订单金额
             "param" => "1", //原样返回参数
             "isHtml"         => 1,//传入1则自动跳转到支付页面，否则返回创建结果的json数据
-            "notify_url" => $this->domain . 'shop/notify/order/type/vpay',//异步通知地址
-            "return_url" => $this->domain . 'order/all.html',//付款完成后的跳转地址
+            "notify_url" => $this->domain . 'notify?mode_type=notify_vpay',//异步通知地址
+            "return_url" => $this->domain . 'notify?mode_type=return_vpay',//同步通知地址
             
         ]; //构造需要传递的参数
         

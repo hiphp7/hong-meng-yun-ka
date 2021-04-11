@@ -166,6 +166,10 @@ class Goods extends Backend {
 						unset($params["stock"]);
 					}
 
+					if(!empty($params['buy_price']) && $params['buy_price'] > $params['price']){
+					    $this->error('进货价不能大于售价');
+                    }
+
 					$result = $this->model->allowField(true)->save($params);
                     db::name("options")->where(["option_name" => "goods_total"])->setInc("option_content");
                     Db::commit();
@@ -229,6 +233,10 @@ class Goods extends Backend {
 //					print_r($row->toArray());die;
                     if(isset($params['goods_type']) && $row->goods_type != $params['goods_type'] && $stock > 0){ //自营商品类型
                         throw new Exception('商品存在库存时无法修改商品类型');
+                    }
+
+                    if(!empty($params['buy_price']) && $params['buy_price'] > $params['price']){
+                        $this->error('进货价不能大于售价');
                     }
 
                     if($row->type == "jiuwu"){
