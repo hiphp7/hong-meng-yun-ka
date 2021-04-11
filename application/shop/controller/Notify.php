@@ -27,7 +27,6 @@ class Notify extends Base {
      */
     public function epay_check_sign($data, $mode, $timestamp){
         if(!empty($data)){
-            unset($data['type']);
             unset($data['model']);
             $epay = new Epay();
             $isSign = $epay->getSignVeryfy($_GET, $_GET["sign"]); //生成签名结果
@@ -64,8 +63,10 @@ class Notify extends Base {
      * 回调通知
     */
     public function index(){
-        $type = $this->request->param('type'); //支付方式
         $mode = $this->request->param('mode'); //通知方式
+        $mode_arr = explode('_', $mode);
+        $mode = $mode_arr[0];
+        $type = $mode_arr[1];
         $timestamp = time(); //时间戳
         if($type == 'epay'){ //易支付验签
             $data = $this->request->get();

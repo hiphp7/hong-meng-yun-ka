@@ -41,8 +41,8 @@ class Epay extends Base {
             "pid"         => $this->appid,//商户ID
             "type"       => $pay_type,//支付方式
             "out_trade_no"     => $order['order_no'], //商户订单号
-            "notify_url" => $this->domain . 'notify?mode=notify&type=epay',//异步通知地址
-            "return_url" => $this->domain . 'notify?mode=return&type=epay',//同步通知地址
+            "notify_url" => $this->domain . 'notify?mode=notify_epay',//异步通知地址
+            "return_url" => $this->domain . 'notify?mode=return_epay',//同步通知地址
             "name" => empty($this->site['diy_name']) ? $goods['name'] : $this->site['diy_name'], //商品名称
             "money"      => $order['money'],//订单金额
         ]; //构造需要传递的参数
