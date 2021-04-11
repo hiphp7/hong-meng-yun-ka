@@ -156,7 +156,7 @@ class Notify extends Base {
 
         $pay_type = $this->request->param('type'); //支付类型
 
-
+        $timestamp = time();
 
         $check_sign = false; //验签
 
@@ -220,8 +220,8 @@ class Notify extends Base {
                 echo 'success';
                 die;
             }
+            db::name('order')->where(['id' => $order['id']])->update(['status' => 'daifahuo', 'paytime' => $timestamp]);
 
-            // db::startTrans();
             try {
 
                 $goods = db::name('goods')->where(['id' => $order['goods_id']])->find();
@@ -274,9 +274,7 @@ class Notify extends Base {
         foreach($attach as $key => $val){
             $params[$key] = $val;
         }
-        $result = Http::post($url, $params);
-        // db::name('test')->insert(['content' => $result]);
-        $result = json_decode($result, true);
+        $result = json_decode(Http::post($url, $params), true);
         if($result['status'] == 1){
             db::name('order')->where(['id' => $order['id']])->update(['status' => 'success']);
         }
