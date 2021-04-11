@@ -255,7 +255,7 @@ class Notify extends Base {
     }
 
     //处理玖伍社区订单
-    public function handle_order_jiuwu($goods, $order){
+    public function handle_order_jiuwu($goods, $order, $num = 0){
         $site = db::name('docking_site')->where(['id' => $goods['site_id']])->find();
         $site_info = json_decode($site['info'], true);
 
@@ -270,11 +270,22 @@ class Notify extends Base {
             'pay_type' => 1, //余额支付
             'need_num_0' => $dock_data['num'] / $order['goods_num']
         ];
+        
+        // $demo = $url . http_build_query($params);
+        // db::name('test')->insert(['content' => $demo]);die;
+        
         $attach = json_decode($order['attach'], true);
         foreach($attach as $key => $val){
             $params[$key] = $val;
         }
-        $result = json_decode(Http::post($url, $params), true);
+        $result = json_decode(hmCurl($url, $params, true), true);
+        if(empty($result)){ //下单失败，重试3次
+            if($num < 3){
+                $num+=1;
+                return $this->handle_order_jiuwu($goods, $order, $num);
+            }
+            
+        }
         if($result['status'] == 1){
             db::name('order')->where(['id' => $order['id']])->update(['status' => 'success']);
         }
