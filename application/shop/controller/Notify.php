@@ -63,10 +63,10 @@ class Notify extends Base {
      * 回调通知
     */
     public function index(){
-        $mode = $this->request->param('mode'); //通知方式
-        $mode_arr = explode('_', $mode);
-        $mode = $mode_arr[0];
-        $type = $mode_arr[1];
+        $mode_type = $this->request->param('mode_type'); //通知方式
+        $mode_type = explode('_', $mode_type);
+        $mode = $mode_type[0];
+        $type = $mode_type[1];
         $timestamp = time(); //时间戳
         if($type == 'epay'){ //易支付验签
             $data = $this->request->get();
