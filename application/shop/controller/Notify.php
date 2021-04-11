@@ -27,9 +27,12 @@ class Notify extends Base {
      */
     public function epay_check_sign($data, $mode, $timestamp){
         if(!empty($data)){
-            unset($data['model']);
+            unset($data['mode_type']);
+            
+            // echo '<pre>'; print_r($data);die;
+            
             $epay = new Epay();
-            $isSign = $epay->getSignVeryfy($_GET, $_GET["sign"]); //生成签名结果
+            $isSign = $epay->getSignVeryfy($data, $data["sign"]); //生成签名结果
             $responseTxt = 'true'; //获取支付宝远程服务器ATN结果（验证是否是支付宝发来的消息）
             /**
              * 验签
@@ -41,7 +44,7 @@ class Notify extends Base {
                 $order = db::name('order')->where(['order_no' => $order_no, 'status' => 'weizhifu'])->find();
                 if (!$order) {
                     if($mode == "return"){
-                        header("lodation: " . url('/order')); die;
+                        header("location: " . url('/order')); die;
                     }elseif($mode == "notify"){
                         echo 'success'; die;
                     }else{
@@ -86,7 +89,7 @@ class Notify extends Base {
                 }
                 doAction('order_notify', $goods, $order); //订单回调挂载点
                 if($mode == 'return'){
-                    header("loation: " . url('/order')); die;
+                    header("location: " . url('/order')); die;
                 }else{
                     echo 'success'; die;
                 }
