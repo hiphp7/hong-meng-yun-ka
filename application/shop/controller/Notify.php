@@ -119,7 +119,7 @@ class Notify extends Base {
             $data = $this->request->get();
             $order = $this->epay_check_sign($data, $mode, $timestamp);
         }
-        if(type == 'vpay'){ //v免签验签
+        if($type == 'vpay'){ //v免签验签
             $data = $this->request->get();
             $order = $this->vpay_check_sign($data, $mode, $timestamp);
         }
