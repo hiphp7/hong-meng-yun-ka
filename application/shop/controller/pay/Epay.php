@@ -47,7 +47,7 @@ class Epay extends Base {
             "money"      => $order['money'],//订单金额
         ]; //构造需要传递的参数
 
-
+//        echo '<pre>'; print_r($data);die;
 
         echo $this->buildRequestForm($data);
         die;

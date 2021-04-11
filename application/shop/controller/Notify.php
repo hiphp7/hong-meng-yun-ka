@@ -28,9 +28,7 @@ class Notify extends Base {
     public function epay_check_sign($data, $mode, $timestamp){
         if(!empty($data)){
             unset($data['mode_type']);
-            
-            // echo '<pre>'; print_r($data);die;
-            
+
             $epay = new Epay();
             $isSign = $epay->getSignVeryfy($data, $data["sign"]); //生成签名结果
             $responseTxt = 'true'; //获取支付宝远程服务器ATN结果（验证是否是支付宝发来的消息）
