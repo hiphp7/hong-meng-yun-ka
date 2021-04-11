@@ -21,11 +21,11 @@ class Upgrade extends Backend {
 		
 		//更新包检测地址
 		$version = $this->version;
-        $domain = "http://cmd.hmyblog.com";
+        $domain = "http://www.hmy3.com";
 		$url = $domain . "/upgrade/shop/{$version}";
         try {
 			//检测更新包
-            $result = file_get_contents($url);
+            $result = hmCurl($url);
         } catch (\Exception $e) {
             return json(["msg" => "更新包获取失败，请重试！", "code" => 400]);
         }

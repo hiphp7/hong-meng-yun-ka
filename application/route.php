@@ -46,6 +46,7 @@ Route::rule('tourist_login','shop/index/tourist_login'); //游客登录
 Route::rule('orderContent/:order_id','shop/order/orderContent'); //查看订单内容
 Route::rule('confirm','shop/buy/confirm'); //确认订单页面
 Route::rule('pay','shop/buy/pay'); //提交支付
+Route::rule('notify','shop/notify/index'); //回调通知地址
 
 //接口
 Route::post('login','shop/login/index'); //登录

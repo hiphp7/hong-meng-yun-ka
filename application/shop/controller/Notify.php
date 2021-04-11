@@ -18,6 +18,85 @@ class Notify extends Base {
     public $postCharset = "UTF-8";
     private $fileCharset = "UTF-8";
 
+    /**
+     * 易支付验签
+     * @params $data 回调数据信息
+     * @params $mode 回调方式
+     * @params $timestamp 回调时间
+     * @return $order 订单信息 验签成功返回订单信息，失败返回false
+     */
+    public function epay_check_sign($data, $mode, $timestamp){
+        if(!empty($data)){
+            unset($data['type']);
+            unset($data['model']);
+            $epay = new Epay();
+            $isSign = $epay->getSignVeryfy($_GET, $_GET["sign"]); //生成签名结果
+            $responseTxt = 'true'; //获取支付宝远程服务器ATN结果（验证是否是支付宝发来的消息）
+            /**
+             * 验签
+             * $responsetTxt的结果不是true，与服务器设置问题、合作身份者ID、notify_id一分钟失效有关
+             * isSign的结果不是true，与安全校验码、请求时的参数格式（如：带自定义参数等）、编码格式有关
+             */
+            if (preg_match("/true$/i",$responseTxt) && $isSign) {
+                $order_no = $_GET['out_trade_no'];
+                $order = db::name('order')->where(['order_no' => $order_no, 'status' => 'weizhifu'])->find();
+                if (!$order) {
+                    if($mode == "return"){
+                        header("lodation: " . url('/order')); die;
+                    }elseif($mode == "notify"){
+                        echo 'success'; die;
+                    }else{
+                        echo "出错啦~"; die;
+                    }
+                }else{
+                    db::name('order')->where(['id' => $order['id']])->update(['status' => 'daifahuo', 'paytime' => $timestamp]);
+                    return $order;
+                }
+            }else{
+                db::name('test')->insert(['content' => '易支付验签失败！']);
+            }
+        }else{
+            return false;
+        }
+    }
+
+    /**
+     * 回调通知
+    */
+    public function index(){
+        $type = $this->request->param('type'); //支付方式
+        $mode = $this->request->param('mode'); //通知方式
+        $timestamp = time(); //时间戳
+        if($type == 'epay'){ //易支付验签
+            $data = $this->request->get();
+            $order = $this->epay_check_sign($data, $mode, $timestamp);
+        }
+        if($order){ //验签成功
+            try {
+                $goods = db::name('goods')->where(['id' => $order['goods_id']])->find();
+                $this->record_user_bill($order, $goods, $timestamp); //记录用户账单，增加用户消费金额
+                $this->update_goods($goods, $order); //增加商品销量和商品销售额，减去商品库存
+                //给商品发货或去对接站购买商品
+                if($goods['type'] == 'own'){
+                    $this->handle_order_own($goods, $order, $timestamp);
+                }
+                if($goods['type'] == 'jiuwu'){
+                    $this->handle_order_jiuwu($goods, $order);
+                }
+                doAction('order_notify', $goods, $order); //订单回调挂载点
+                if($mode == 'return'){
+                    header("loation: " . url('/order')); die;
+                }else{
+                    echo 'success'; die;
+                }
+            } catch (\Exception $e) {
+                db::name('test')->insert(['content' => $e->getMessage() . $e->getFile() . $e->getLIne()]);
+                echo 'error'; die;
+            }
+        }
+
+    }
+
     //订单回调
     public function order() {
 
@@ -76,31 +155,6 @@ class Notify extends Base {
             } catch (\Exception $e) {
                 db::name('test')->insert(['content' => $e->getMessage() . $e->getLine() . $e->getFile()]);
             }
-        }elseif($pay_type == 'epay'){ //易支付验签
-            try {
-                $epay = new Epay();
-
-                if(!empty($_GET)) {//判断POST来的数组是否为空
-                    //生成签名结果
-                    $isSign = $epay->getSignVeryfy($_GET, $_GET["sign"]);
-                    //获取支付宝远程服务器ATN结果（验证是否是支付宝发来的消息）
-                    $responseTxt = 'true';
-                    //$responseTxt = $this->getResponse($_GET["trade_no"]);
-                    //验证
-                    //$responsetTxt的结果不是true，与服务器设置问题、合作身份者ID、notify_id一分钟失效有关
-                    //isSign的结果不是true，与安全校验码、请求时的参数格式（如：带自定义参数等）、编码格式有关
-                    if (preg_match("/true$/i",$responseTxt) && $isSign) {
-                        $check_sign = true;
-                        $order_no = $_GET['out_trade_no'];
-                    }else{
-                        db::name('test')->insert(['content' => '易支付验签失败！']);
-                    }
-                }
-            }catch(\Exception $e){
-                db::name('test')->insert(['content' => $e->getMessage() . $e->getLine() . $e->getFile()]);
-            }
-
-
         }elseif($pay_type == 'vpay'){ //v免签验签。
             db::name('test')->insert(['content' => 'vpay' . '------']);
             try {
@@ -205,7 +259,7 @@ class Notify extends Base {
 
     //处理自营订单
     public function handle_order_own($goods, $order, $timestamp){
-        $status = $goods['deliver'] == 0 ? 'yifahuo' : 'daifahuo'; //自动发货=0 已发货=yifahuo 手动发货=1 代发货=daifahuo
+        $status = $goods['deliver'] == 0 ? 'success' : 'daifahuo'; //自动发货=0 已发货=yifahuo 手动发货=1 代发货=daifahuo
         $update = [
             'status' => $status, //发货状态
             'paytime' => $timestamp, //支付时间
