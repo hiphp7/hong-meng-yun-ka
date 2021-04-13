@@ -11,13 +11,14 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
              * 下载更新
              * */
             $(document).on("click", "#download-update", function(){
-                if($(this).html() == "正在更新..." || $(this).html() == "更新完成！"){
+                if($(this).html() != "立即更新"){
                     return;
                 }
                 var href = $(this).data("href");
                 $(this).html("正在更新...");
                 $.get("/admin/upgrade/index", function(e){
                     if(e.code == 200){
+
                         $("#download-update").html(e.msg);
                         // location.reload();
                     }else{
@@ -30,17 +31,19 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
              * 检查更新
              * */
             $(document).on("click", "#check-update", function(){
-                if($(this).html() != "检查更新"){
+                if($(this).html() != "检查更新" && $(this).html() != "检测失败，请点击重试"){
                     return;
                 }
                 $(this).html("正在检查...");
 
-                $.get("/admin/dashboard/checkUpgrade", function(e){
-                    if(e.code == 400 && e.msg == '暂无更新'){
-                        $("#check-update").html("当前已是最新版本");
-                    }else if(e.code == 200){
+                $.get("/admin/upgrade/checkUpgrade", function(e){
+                    if(e.code == 400){ //暂无更新
+                        $("#check-update").html(e.msg);
+                    }else if(e.code == 200){ //发现新版本
                         $("#check-update").html("发现新版本v" + e.data.version + " <a data-href='/admin/upgrade/index/file/' id='download-update' style='cursor: pointer;'>下载更新</a>");
-                    }else if(e.code == 401){
+                    }else if(e.code == 401){ //beat版本不支持更新
+                        $("#check-update").html(e.msg);
+                    }else if(e.code == 402){ //检测出错
                         $("#check-update").html(e.msg);
                     }
                 }, "json");

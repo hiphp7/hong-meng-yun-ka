@@ -71,8 +71,6 @@ class Dashboard extends Backend {
         }
 
         //商品销量top10
-//        $goods_list = Goods::withCount('order')->select();
-//        echo '<pre>'; print_r($goods_list);die;
         $goods_list = db::name("goods")->where('deletetime is null and sales > 0')->order("sales desc")->limit(10)->select();
         foreach ($goods_list as &$val) {
             $images = explode(",", $val["images"]);
@@ -86,7 +84,7 @@ class Dashboard extends Backend {
         db::commit();
 
         $version = $this->version;
-        $upgrade_url = "http://cmd.hmyblog.com/upgrade/shop/" . $version;
+        $upgrade_url = "http://www.hmy3.com/api/upgrade/check_upgrade/type/shop/version/" . $version;
 
         if(Cache::has('upgrade_result')){
             $result = Cache::get('upgrade_result');
@@ -110,10 +108,7 @@ class Dashboard extends Backend {
             $this->assign("new_version", $upgrade_data);
         }
 
-      /*  $file = "/uploads/20210123/22999e17ee71fa92a43b201ed956bfa4.zip";
-        echo urlencode(json_encode($file));die;
 
-        echo '<pre>'; print_r($upgrade_data);die;*/
 
         $this->view->assign([
             'version' => $version,
@@ -132,28 +127,7 @@ class Dashboard extends Backend {
     }
 
 
-    /**
-     * 检查更新
-    */
-    public function checkUpgrade(){
-        $version = $this->version;
-        if($version == '开发版'){
-            return json(['code' => 401, 'msg' => "您使用的是开发版本，不支持更新！请<a href='http://www.hmy3.com/hmyk.html' target='_blank'>前往官网<a/>下载发行版！"]);
-        }
 
-        $upgrade_url = "http://cmd.hmyblog.com/upgrade/shop/" . $version;
-
-        try {
-            $result = json_decode(file_get_contents($upgrade_url), true);
-        }catch (\Exception $e){
-            return json(['code' => 400, 'msg' => '获取更新失败！']);
-        }
-        Cache::set('upgrade_result', $result, 3600 * 12);
-
-        return $result;
-
-
-    }
 
 
 }
