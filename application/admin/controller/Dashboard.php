@@ -54,7 +54,7 @@ class Dashboard extends Backend {
         //分类总数
         $category_total = db::name("category")->field("id")->count();
         //今日订单数量
-        $today_order_result = db::name("order")->where($where . " and status>0")->field("id, status, goods_money, money, goods_num, remote_money")->select();
+        $today_order_result = db::name("order")->where($where . " and status != 'yiguoqi' and status != 'weizhifu'")->field("id, status, goods_money, money, goods_num, remote_money")->select();
         $today_order = count($today_order_result);
         //今日待处理订单
         $today_wait_order = 0;
@@ -63,7 +63,7 @@ class Dashboard extends Backend {
         //今日盈利金额
         $today_order_profit = 0;
         foreach ($today_order_result as $val) {
-            if ($val["status"] == 1) {
+            if ($val["status"] == 'daifahuo') {
                 $today_wait_order++;
             }
             $today_order_money += $val["money"];
@@ -71,14 +71,14 @@ class Dashboard extends Backend {
         }
 
         //商品销量top10
-        $goods_list = db::name("goods")->where('deletetime is null and sales > 0')->order("sales desc")->limit(10)->select();
+        $goods_list = db::name("goods")->where('sales > 0')->order("sales desc")->limit(10)->select();
         foreach ($goods_list as &$val) {
             $images = explode(",", $val["images"]);
             $val["cover"] = $images[0];
         }
 
         //用户消费top10
-        $user_list = User::withCount('order')->where("consume > 0")->limit(10)->select();
+        $user_list = User::withCount('order')->where("consume > 0")->order('consume desc')->limit(10)->select();
 
 
         db::commit();

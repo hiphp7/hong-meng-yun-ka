@@ -51,7 +51,6 @@ class Plugin extends Backend {
             $post = json_encode($post);
             file_put_contents("{$plugin_path}{$plugin}_setting.json", $post);
             $this->success('操作成功');
-            print_r($post);die;
         }
 
         $info = file_get_contents("{$plugin_path}{$plugin}_setting.json");
@@ -307,7 +306,6 @@ class Plugin extends Backend {
             $hmPlugins = [];
             $pluginFiles = [];
             $pluginPath = ROOT_PATH . 'public/content/plugin';
-            //            echo $pluginPath;die;
             $pluginDir = @dir($pluginPath);
 
             if ($pluginDir){
@@ -330,8 +328,6 @@ class Plugin extends Backend {
                     }
                 }
             }
-
-            //            sort($pluginFiles);
 
             $active_plugins = Db::name('options')->where(['option_name' => 'active_plugin'])->value('option_content');
             $active_plugins = empty($active_plugins) ? [] : unserialize($active_plugins);

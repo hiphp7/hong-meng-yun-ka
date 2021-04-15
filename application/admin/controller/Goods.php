@@ -293,6 +293,48 @@ class Goods extends Backend {
         return $this->view->fetch();
     }
 
+    /**
+     * 删除商品
+     */
+    public function del($ids = "") {
+        if (!$this->request->isPost()) {
+            $this->error(__("Invalid parameters"));
+        }
+        $ids = $ids ? $ids : $this->request->post("ids");
+        if ($ids) {
+            $pk = $this->model->getPk();
+            $adminIds = $this->getDataLimitAdminIds();
+            if (is_array($adminIds)) {
+                $this->model->where($this->dataLimitField, 'in', $adminIds);
+            }
+            $list = $this->model->where($pk, 'in', $ids)->select();
+
+            $count = 0;
+            Db::startTrans();
+            try {
+                foreach ($list as $k => $v) {
+                    $count += $v->delete();
+                }
+                $count = db::name('options')->where(['option_name' => 'goods_total'])->setDec('option_content', $count);
+                Db::commit();
+            } catch (PDOException $e) {
+                Db::rollback();
+                $this->error($e->getMessage());
+            } catch (Exception $e) {
+                Db::rollback();
+                $this->error($e->getMessage());
+            }
+            if ($count) {
+                $this->success();
+            } else {
+                $this->error(__('No rows were deleted'));
+            }
+        }
+        $this->error(__('Parameter %s can not be empty', 'ids'));
+    }
+
+
+    //删除库存
 	public function stock_del(){
 		$ids = $this->request->param('ids');
 		Db::startTrans();
@@ -307,11 +349,11 @@ class Goods extends Backend {
 						break;
 					}
 				}
-				if($goods_id){
-					db::name('goods')->where(['id' => $goods_id])->setDec('stock', $ids_num);
-					db::name('cdkey')->whereIn('id', $ids)->delete();
-				}
 			}
+            if($goods_id){
+                db::name('goods')->where(['id' => $goods_id])->setDec('stock', $ids_num);
+                db::name('cdkey')->whereIn('id', $ids)->delete();
+            }
 			db::commit();
 		} catch (\Exception $e) {
 			db::rollback();

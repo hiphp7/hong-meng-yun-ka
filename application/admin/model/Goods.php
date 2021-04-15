@@ -3,13 +3,8 @@
 namespace app\admin\model;
 
 use think\Model;
-use traits\model\SoftDelete;
 
-class Goods extends Model
-{
-
-    use SoftDelete;
-
+class Goods extends Model {
 
 
     // 表名
@@ -20,29 +15,22 @@ class Goods extends Model
     // 定义时间戳字段名
     protected $createTime = 'createtime';
     protected $updateTime = 'updatetime';
-    protected $deleteTime = 'deletetime';
 
     // 追加属性
     protected $append = [
 
     ];
 
-    public function category(){
+    public function category() {
         return $this->belongsTo('category', 'category_id', 'id', [], 'LEFT')->setEagerlyType(0);
     }
 
     /**
      * goods关联order一对多
      */
-    public function order(){
+    public function order() {
         return $this->hasMany('Order', 'goods_id', 'id')->field('money');
     }
-
-
-
-
-
-
 
 
 }
