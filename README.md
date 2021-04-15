@@ -20,10 +20,17 @@ Gitee: https://gitee.com/daua/kamiduli
 
 ## 截图展示
 ![img_5.png](img_5.png)
+
+![da.jpg](da.jpg)
+
 ![img.png](img.png)
+
 ![img_1.png](img_1.png)
+
 ![img_2.png](img_2.png)
+
 ![img_3.png](img_3.png)
+
 ![img_4.png](img_4.png)
 
 
