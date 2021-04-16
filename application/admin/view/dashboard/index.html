@@ -23,13 +23,21 @@
     .bg-purple-600{
         background: #4e73df;
     }
+
+    .set-a a:link{
+        color: #fff;
+    }
+    .set-a a:visited{
+        color: #fff;
+    }
+
 </style>
 {:doAction('admin_dashboard_head')}
 
 <div class="panel-default panel-intro">
     {:doAction('admin_dashboard_upgrade')}
     <div class="flex items-center justify-between p-4 mb-8 text-sm font-semibold text-purple-100 bg-purple-600 rounded-lg shadow-md focus:outline-none focus:shadow-outline-purple" href="">
-        <div class="flex items-center">
+        <div class="flex items-center set-a">
 
             {if condition="$upgrade"}
             <span>
