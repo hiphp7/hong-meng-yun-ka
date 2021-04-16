@@ -65,14 +65,13 @@ class Plugin extends Backend {
      * 安装插件
      */
     public function install(){
-        $id = $this->request->param('ids');
-
+        $plugin_id = $this->request->param('plugin_id');
 
         //获取插件信息
-        $result = json_decode(hmCurl($this->domain . '/api/plugin/detail/id/' . $id), true);
+        $result = json_decode(hmCurl($this->domain . '/api/plugin/detail/id/' . $plugin_id), true);
         $info = $result['data'];
         if($this->version != '开发版' && $this->version < $info['support']){
-            $this->error('当前程序版本过低，请更新程序');
+            return json(['code' => 400, 'msg' => '当前程序版本过低，请更新程序']);
         }
 
 
@@ -88,6 +87,10 @@ class Plugin extends Backend {
         $file_url = $this->domain . $info['file'];
         $path = file_exists($dir . $filename) ? $dir . $filename : $this->download_file($file_url, $dir, $filename);
 
+        if($path == 'default_socket_timeout'){
+            return json(['code' => 400, 'msg' => '下载插件连接超时，请重试！']);
+        }
+
         $zip = new \ZipArchive();
 
         //打开压缩包
@@ -99,15 +102,14 @@ class Plugin extends Backend {
                 $zip->close();
                 unlink($path);
             } catch (\Exception $e) {
-                echo $e->getMessage();die;
-                $this->error("没有该目录[" . $toPath . "]的写入权限");
+                return json(['code' => 400, 'msg' => "没有该目录[" . $toPath . "]的写入权限"]);
             }
-
-            $this->success('安装成功');
+            hmCurl($this->domain . '/api/plugin/download_num/id/' . $plugin_id);
+            return json(['code' => 200, 'msg' => "安装成功"]);
 
         } else {
             unlink($path);
-            $this->error("压缩包解压失败，请重试！");
+            return json(['code' => 400, 'msg' => "压缩包解压失败，请重试！"]);
         }
     }
 
@@ -126,7 +128,12 @@ class Plugin extends Backend {
         $filename = $dir . $filename;
         //开始捕捉
         ob_start();
-        readfile($url);
+        try {
+            readfile($url);
+        }catch (\Exception $e){
+            return 'default_socket_timeout';
+        }
+
         $img = ob_get_contents();
         ob_end_clean();
         $size = strlen($img);
@@ -250,6 +257,7 @@ class Plugin extends Backend {
 
             sort($pluginFiles);
 
+//            print_r($pluginFiles);die;
             $active_plugins = Db::name('options')->where(['option_name' => 'active_plugin'])->value('option_content');
             $active_plugins = empty($active_plugins) ? [] : unserialize($active_plugins);
 
@@ -259,18 +267,21 @@ class Plugin extends Backend {
                 if (empty($pluginData['name'])){
                     continue;
                 }
+
                 $pluginData['status'] = in_array($pluginFile, $active_plugins) ? 'enable' : 'disable';
                 $hmPlugins[] = $pluginData;
             }
 
 
             foreach($result['data'] as &$val){
+                $val['author'] = '<a href="' . $val['author_url'] . '" target="_blank">' . $val['author'] . '</a>';
                 $val['install'] = false;
                 foreach($hmPlugins as $v){
                     if($val['english_name'] == $v['plugin']){
                         $val['install'] = true;
                         $val['setting'] = $v['setting'];
                         $val['plugin'] = $v['plugin'];
+                        $val['status'] = $v['status'];
                     }
                 }
             }
@@ -292,7 +303,7 @@ class Plugin extends Backend {
 
 
     /**
-     * 查看
+     * 查看已安装插件列表
      */
     public function index(){
         //设置过滤方法
@@ -339,6 +350,7 @@ class Plugin extends Backend {
                     continue;
                 }
                 $pluginData['status'] = in_array($pluginFile, $active_plugins) ? 'enable' : 'disable';
+                $pluginData['install'] = true;
                 $hmPlugins[] = $pluginData;
             }
 
