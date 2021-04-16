@@ -64,7 +64,7 @@
 
                     <div class="layui-tab">
                         <ul class="layui-tab-title">
-                            <li class="{:empty($search_type) ? 'layui-this' : ''} browser-btn"><a href="{:url('/order')}">浏览器缓存</a></li>
+                            <li class="{:empty($search_type) ? 'layui-this' : ''} browser-btn"><a href="{:url('/order')}">{:$uid ? '我的订单' : '浏览器缓存'}</a></li>
                             <li class="{:$search_type == 'email' ? 'layui-this' : ''} email-btn"><a href="{:url('/order')}?search_type=email">邮箱查询</a></li>
                             <li class="{:$search_type == 'orderno' ? 'layui-this' : ''} order-btn"><a href="{:url('/order')}?search_type=orderno">订单号查询</a></li>
                             <li></li>

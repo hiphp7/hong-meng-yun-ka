@@ -175,6 +175,21 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             // 为表格绑定事件
             Table.api.bindevent(table);
 
+            //绑定TAB事件
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                $('.search > input').val('')
+                var typeStr = $(this).attr("href").replace('#', '');
+                var options = table.bootstrapTable('getOptions');
+                options.pageNumber = 1;
+                options.queryParams = function (params) {
+                    params.shelf = typeStr;
+                    return params;
+                };
+                table.bootstrapTable('refresh', {});
+                return false;
+
+            });
+
 
             //上架商品
             $(document).on("click", ".up-goods", function () {

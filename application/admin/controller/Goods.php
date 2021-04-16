@@ -401,7 +401,13 @@ class Goods extends Backend {
             }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams();
 
-            $list = $this->model->with('category')->where($where)->order($sort, $order)->paginate($limit);
+            $shelf = $this->request->param('shelf');
+            $where_shelf = [];
+            if($shelf != 'all' && $shelf != null){
+                $where_shelf['shelf'] = $shelf;
+            }
+
+            $list = $this->model->with('category')->where($where)->where($where_shelf)->order($sort, $order)->paginate($limit);
             $rows = $list->items();
 
             $result = ["total" => $list->total(), "rows" => $rows];
