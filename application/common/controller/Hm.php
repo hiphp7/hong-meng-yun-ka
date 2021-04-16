@@ -176,7 +176,6 @@ class Hm{
                     $user = db::name('user')->where(['tourist' => $tourist])->find();
 
                 }
-                // var_dump($user);
                 session::set('tourist_id', $user['id']);
             }
         }

@@ -17,10 +17,13 @@ class Goods extends Base {
             $this->error('商品不存在！');
         }
 //        echo '<pre>'; print_r($goods);die;
+        $user = Hm::getUser();
+        $order = db::name('order')->where(['uid' => $user['id']])->order('id desc')->find();
 
         $this->assign([
             'title' => $goods['name'],
-            'goods' => $goods
+            'goods' => $goods,
+            'order' => $order,
         ]);
         return view($this->template_path . "goods.html");
 

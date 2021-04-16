@@ -113,6 +113,7 @@ class Buy extends Base {
             $this->error('该商品最多可以购买' . $goods['max_int'] . '件');
         }
 
+
         $attach = []; //订单附加数据
         foreach($post as $key => $val){
             if(strstr($key, 'attach_')){
@@ -145,7 +146,7 @@ class Buy extends Base {
         }
 
         $user = Hm::getUser(); //获取当前用户信息
-        
+
         // var_dump($user);die;
 
         //写入订单
@@ -175,6 +176,8 @@ class Buy extends Base {
             'money'       => $order_money, //订单金额
             'remote_money' => $goods['buy_price'] * $post['goods_num'], //进货价
             'attach' => json_encode($attach), //附加内容
+            'email' => $post['email'],
+            'password' => $post['password'],
         ];
 
 //        echo '<pre>';

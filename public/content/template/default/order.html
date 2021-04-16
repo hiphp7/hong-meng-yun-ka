@@ -175,17 +175,6 @@ window.onload = function(){
         {/if}
 
 
-        // if(search_type){
-        //     if(data.search_type == 'order_no'){
-        //         data.order_no = order_no;
-        //     }
-        //     if(data.search_type == 'email'){
-        //         data.email = email;
-        //         data.password = password;
-        //     }
-        // }
-
-
         $.post(api, data, function(e){
             var list = e.data;
             var html = "";
@@ -218,7 +207,6 @@ window.onload = function(){
             }
             if(offset == 0){
                 $(".loading").hide();
-                // $('#browser-list').attr('data-list', 'not');
                 $("#order-empty").show();
                 return;
             }
