@@ -21,11 +21,9 @@ function get_config(){
  * 获取订单列表
 */
 function order_list(){
-    $params = [
-        'offset' => input('offset'),
-        'limit' => input('limit'),
-    ];
-    $order = Hm::orderList($params);
+
+
+    $order = Hm::orderList(input());
 
     echo $order;die;
 
@@ -93,7 +91,7 @@ function goods_info($id){
 function goods_list(){
     $category = db::name('category')->where(['status' => 'normal'])->select();
 
-    $goods = db::name('goods')->where('deletetime is null and shelf=0')->order('id desc')->select();
+    $goods = db::name('goods')->where('shelf=0')->order('id desc')->select();
 
     $list = [];
 

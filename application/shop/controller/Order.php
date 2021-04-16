@@ -9,26 +9,15 @@ class Order extends Base {
 
     public function index() {
 
-        $type = $this->request->param('type');
+        $search_type = $this->request->get('search_type');
         $user = Hm::getUser();
-        if($type == 'all'){
-            $index = 0;
-        }else if($type == 'dfk'){
-            $index =1;
-        }else if($type == 'dfh'){
-            $index = 2;
-        }else if($type == 'dsh'){
-            $index = 3;
-        }else if($type == 'ywc'){
-            $index = 4;
-        }else{
-             $index = 0;
-        }
+
+        $post = $this->request->post();
         $this->assign([
             'title' => '订单列表',
-            'type' => $type, //订单状态
-            'index' => $index, //订单状态
+            'search_type' => $search_type, //订单状态
             'user' => $user, //用户信息
+            'post' => $post,
         ]);
         return view($this->template_path . "order.html");
     }
@@ -88,7 +77,7 @@ class Order extends Base {
         $table = $this->request->param('table');
         if($table == 'order'){
             $order = db::name($table)->where(['order_no' => $order_no])->find();
-			
+
 			if(time() - $order['createtime'] >= 600){
 				return json(['msg' => '订单已过期', 'code' => 400]);
 			}

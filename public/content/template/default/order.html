@@ -24,9 +24,7 @@
     .del-btn{
         background: #ff5722;
     }
-    .layui-card-header{
-        border-top: 5px solid #eee;
-    }
+
     .layui-card{
         box-shadow: unset;
         margin-bottom: 0;
@@ -62,12 +60,72 @@
                     </svg>
                     订单列表
                 </div>
-                <div id="list">
+                <div class="layui-card-body">
 
+                    <div class="layui-tab">
+                        <ul class="layui-tab-title">
+                            <li class="{:empty($search_type) ? 'layui-this' : ''} browser-btn"><a href="{:url('/order')}">浏览器缓存</a></li>
+                            <li class="{:$search_type == 'email' ? 'layui-this' : ''} email-btn"><a href="{:url('/order')}?search_type=email">邮箱查询</a></li>
+                            <li class="{:$search_type == 'orderno' ? 'layui-this' : ''} order-btn"><a href="{:url('/order')}?search_type=orderno">订单号查询</a></li>
+                            <li></li>
+                        </ul>
+                        <div class="layui-tab-content" style="text-align: center">
+                            <!-- 浏览器缓存 -->
+                            <div class="layui-tab-item layui-show browser-box" style="text-align: left">
+                                {if condition="!empty($_POST) || empty($search_type)"}
+                                <div id="list"></div>
+                                <p class="loading" data-loading="0">加载中...</p>
+                                {/if}
+
+                                <!-- 邮箱查询 -->
+                                {if condition="$search_type == 'email' && empty($_POST)"}
+                                <div style="text-align: center;">
+                                    <form class="layui-form" action="" method="post">
+                                        <input type="hidden" name="search_type" value="email">
+                                        <div class="entry">
+                                            <span class="l-msg">邮箱:</span>
+                                            <label class="input">
+                                                <input type="text" name="email" required="" lay-verify="required" placeholder="请输入邮箱" autocomplete="off">
+                                            </label>
+                                        </div>
+                                        <div class="entry">
+                                            <span class="l-msg">查询密码:</span>
+                                            <label class="input">
+                                                <input type="password" name="password" required="" lay-verify="required" placeholder="请输入查询密码" autocomplete="off">
+                                            </label>
+                                        </div>
+                                        <div class="btn">
+                                            <button>
+                                                立即查询
+                                            </button>
+                                        </div>
+
+                                    </form>
+                                </div>
+                                {/if}
+                                <!-- 订单号查询 -->
+                                {if condition="$search_type == 'orderno' && empty($_POST)"}
+                                <div style="text-align: center;">
+                                    <form class="layui-form" action="" method="post">
+                                        <input type="hidden" name="search_type" value="order_no">
+                                        <div class="entry">
+                                            <span class="l-msg">订单号:</span>
+                                            <label class="input">
+                                                <input type="text" name="order_no" required="" lay-verify="required" placeholder="请输入订单号" autocomplete="off">
+                                            </label>
+                                        </div>
+                                        <div class="btn">
+                                            <button>
+                                                立即查询
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                                {/if}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <p class="loading" data-loading="0">加载中...</p>
-
-
                 {include file="content/template/default/order_empty.html" /}
             </div>
         </div>
@@ -79,10 +137,20 @@
 window.onload = function(){
     var offset = 0;
     var limit = 10;
+    {if condition="empty($search_type)"}
     load();
+    {elseif condition="!empty($post)"}
+    load();
+    {/if}
     $(".loading").click(function(){
         load();
     })
+
+
+
+
+
+
     function load(){
         var loading = $(".loading").attr("data-loading");
         if(loading == 1){
@@ -90,9 +158,35 @@ window.onload = function(){
         }
         $(".loading").attr("data-loading", 1);
         $(".loading").html("加载中...");
-        var api = "/module/order_list"; //两个api都可以使用， 需要module.php内搭配使用
-        // var api = "/shop/hm/orderlist"; //直接请求api，不会后端开发的可以使用这种方式
-        $.get(api, {"offset":offset, "limit": limit}, function(e){
+        var api = "/module/order_list"; //需要module.php内搭配使用
+
+        var data = {"offset":offset, "limit": limit};
+
+        {if condition="!empty($post)"}
+        data.search_type = "{$post.search_type}";
+        {/if}
+        {if condition="!empty($post) && $post.search_type == 'order_no'"}
+        data.order_no = "{$post.order_no}";
+        {/if}
+
+        {if condition="!empty($post) && $post.search_type == 'email'"}
+        data.email = "{$post.email}";
+        data.password = "{$post.password}";
+        {/if}
+
+
+        // if(search_type){
+        //     if(data.search_type == 'order_no'){
+        //         data.order_no = order_no;
+        //     }
+        //     if(data.search_type == 'email'){
+        //         data.email = email;
+        //         data.password = password;
+        //     }
+        // }
+
+
+        $.post(api, data, function(e){
             var list = e.data;
             var html = "";
             for(var i = 0; i < list.length; i++){
@@ -124,6 +218,7 @@ window.onload = function(){
             }
             if(offset == 0){
                 $(".loading").hide();
+                // $('#browser-list').attr('data-list', 'not');
                 $("#order-empty").show();
                 return;
             }

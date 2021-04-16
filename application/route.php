@@ -34,7 +34,7 @@ Route::rule('nickname','shop/user/nickname'); //修改昵称
 Route::rule('gender','shop/user/gender'); //修改性别
 Route::rule('email','shop/user/email'); //绑定邮箱
 Route::rule('alipay','shop/user/alipay'); //绑定支付宝
-Route::rule('order/[:type]','shop/order/index'); //订单中心
+Route::rule('order/[:search_type]','shop/order/index'); //订单中心
 Route::get('list/:category','shop/goods/lists'); //商品列表
 Route::rule('buy/:goods_id','shop/buy/detail'); //提交订单
 Route::rule('buy_order/:order_id','shop/buy/detail'); //提交订单

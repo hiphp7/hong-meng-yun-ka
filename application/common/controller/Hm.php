@@ -80,11 +80,26 @@ class Hm{
         $params = empty($params) ? input() : $params;
         $offset = $params['offset'];
         $limit = $params['limit'];
-        $user = Hm::getUser();
+        $search_type = empty($params['search_type']) ? false : $params['search_type'];
 
-        $where = [
-            'uid' => $user['id'],
-        ];
+        if($search_type == 'email'){
+            $where = [
+                'email' => $params['email'],
+                'password' => $params['password']
+            ];
+        }else if($search_type == 'order_no'){
+            $where = [
+                'order_no' => $params['order_no']
+            ];
+        }else{
+            $user = Hm::getUser();
+            $where = [
+                'uid' => $user['id'],
+            ];
+        }
+
+
+
 
         $list = db::name('order')->where($where)->order('id desc')->limit($offset, $limit)->select();
 
@@ -140,7 +155,7 @@ class Hm{
                 if($tourist){ //老游客查找
                     $user = db::name('user')->where(['tourist' => $tourist])->find();
                     if(!$user){
-                        
+
                         cookie('tourist', null);
                         session::delete('tourist_id');
                         return self::getUser();
@@ -159,7 +174,7 @@ class Hm{
                     ];
                     db::name('user')->insert($insert);
                     $user = db::name('user')->where(['tourist' => $tourist])->find();
-                    
+
                 }
                 // var_dump($user);
                 session::set('tourist_id', $user['id']);
