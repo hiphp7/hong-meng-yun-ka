@@ -81,7 +81,7 @@
                             <input id="c-stock" class="form-control" name="row[stock]" value="{$row.stock|htmlentities}" type="number" value="99">
                         </div>
                     </div>
-                    <div class="form-group" style="{:$row.deliver == 0 ? 'display: none' : ''}" id="attach-box">
+                    <div class="form-group" id="attach-box">
                         <label class="control-label col-xs-12 col-sm-2">{:__('附加选项')}:</label>
                         <div class="col-xs-12 col-sm-8">
                             <select id="c-attach_id" data-rule="required" class="form-control selectpicker" name="row[attach_id]">
@@ -130,8 +130,8 @@
         </div>
     </div>
 
-    
-    
+
+
 
     <div class="form-group layer-footer">
         <label class="control-label col-xs-12 col-sm-2"></label>
