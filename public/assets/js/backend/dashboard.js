@@ -11,7 +11,7 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
              * 下载更新
              * */
             $(document).on("click", "#download-update", function(){
-                if($(this).html() != "立即更新"){
+                if($(this).html() != "立即更新" && $(this).html() != '下载更新' && $(this).html() != '更新包获取失败，请重试！' && $(this).html() != '更新包解压失败，请重试！'){
                     return;
                 }
                 var href = $(this).data("href");
