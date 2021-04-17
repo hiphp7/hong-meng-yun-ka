@@ -19,19 +19,19 @@
 Gitee: https://gitee.com/daua/kamiduli
 
 ## 截图展示
-![img_5.png](img_5.png)
+![前台首页](image/img_5.png)
 
-![da.jpg](da.jpg)
+![后台首页](image/da.jpg)
 
-![img.png](img.png)
+![支付配置](image/img.png)
 
-![img_1.png](img_1.png)
+![商品管理](image/img_1.png)
 
-![img_2.png](img_2.png)
+![订单管理](image/img_2.png)
 
-![img_3.png](img_3.png)
+![对接管理](image/img_3.png)
 
-![img_4.png](img_4.png)
+![插件管理](image/img_4.png)
 
 
 ## 版权信息
