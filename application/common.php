@@ -3,7 +3,30 @@
 // 公共助手函数
 
 use Symfony\Component\VarExporter\VarExporter;
+use think\Cache;
 
+define('HMURL', 'http://www.hmy3.com/');
+
+
+/**
+ * 验证插件授权
+ */
+function check_plugin_authorize($plugin_name){
+    if(!Cache::has($plugin_name . '_check') || Cache::get($plugin_name . '_check') != true){
+        $host = $_SERVER['HTTP_HOST'];
+        $result = hmCurl(HMURL . 'check_plugin/' . $plugin_name . '/' . $host);
+        $result = json_decode($result, true);
+        if(empty($result)){
+            die('插件授权许可验证失败');
+        }
+        if($result['code'] == 400){
+            die($result['msg']);
+        }
+        if($result['code'] == 200){
+            Cache::set($plugin_name . '_check', true, 3600 * 24);
+        }
+    }
+}
 
 /**
  * 请求接口返回内容
@@ -55,6 +78,10 @@ function checkPlugin($plugin) {
         return false;
     }
 }
+
+/**
+ *
+*/
 
 
 /**

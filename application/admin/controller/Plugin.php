@@ -62,6 +62,27 @@ class Plugin extends Backend {
     }
 
     /**
+     * 绑定授权
+     */
+    public function bind_authorize(){
+        $authorize_code = $this->request->param('authorize_code');
+        $plugin_id = $this->request->param('plugin_id');
+        $user_id = $this->request->param('user_id');
+        $host = $_SERVER['HTTP_HOST'];
+
+        $result = hmCurl(HMURL . 'bind_plugin/' . $plugin_id . '/' . $host . '/' . $authorize_code . '/' . $user_id);
+        $result = json_decode($result, true);
+        if(empty($result)){
+            return json(['code' => 400, 'msg' => '授权请求失败，请重试']);
+        }
+        if($result['code'] == 400){
+            return json(['code' => 400, 'msg' => $result['msg']]);
+        }
+        return json(['code' => 200, 'msg' => $result['msg']]);
+    }
+
+
+    /**
      * 安装插件
      */
     public function install(){
@@ -69,9 +90,22 @@ class Plugin extends Backend {
 
         //获取插件信息
         $result = json_decode(hmCurl($this->domain . '/api/plugin/detail/id/' . $plugin_id), true);
+
         $info = $result['data'];
         if($this->version != '开发版' && $this->version < $info['support']){
             return json(['code' => 400, 'msg' => '当前程序版本过低，请更新程序']);
+        }
+        if($info['price'] > 0){
+            $plugin_id = $info['id'];
+            $host = $_SERVER['HTTP_HOST'];
+            $result = hmCurl(HMURL . 'check_plugin/' . $plugin_id . '/' . $host);
+            $result = json_decode($result, true);
+            if(empty($result)){ //获取授权信息失败
+                return json(['code' => 400, 'msg' => '插件信息获取失败']);
+            }
+            if($result['code'] == 400){ //未授权
+                return json(['code' => 401, 'msg' => '需要授权码', 'data' => $result['data']]);
+            }
         }
 
 
@@ -95,14 +129,18 @@ class Plugin extends Backend {
 
         //打开压缩包
         if ($zip->open($path) === true) {
-            $toPath = ROOT_PATH;
+            $toPath = ROOT_PATH . 'public/content/plugin';
             try {
                 //解压文件到toPath路径下
-                $zip->extractTo($toPath . 'public/content/plugin');
+                $zip->extractTo($toPath);
                 $zip->close();
                 unlink($path);
             } catch (\Exception $e) {
                 return json(['code' => 400, 'msg' => "没有该目录[" . $toPath . "]的写入权限"]);
+            }
+            $plugin_path = $toPath . '/' . $info['english_name'];
+            if(file_exists($plugin_path . '/director')){
+                copydirs($plugin_path . '/director', ROOT_PATH);
             }
             hmCurl($this->domain . '/api/plugin/download_num/id/' . $plugin_id);
             return json(['code' => 200, 'msg' => "安装成功"]);
@@ -162,9 +200,11 @@ class Plugin extends Backend {
                     unset($active_plugins[$key]);
                 }
             }
-
+//echo ROOT_PATH . 'public/content/plugin/' . $plugin . '/' . $plugin . '_del.php';die;
             db::name('options')->where(['option_name' => 'active_plugin'])->update(['option_content' => serialize($active_plugins)]);
-
+            if(file_exists(ROOT_PATH . 'public/content/plugin/' . $plugin . '/' . $plugin . '_del.php')){
+                include_once ROOT_PATH . 'public/content/plugin/' . $plugin . '/' . $plugin . '_del.php';
+            }
             rmdirs(ROOT_PATH . 'public/content/plugin/' . $plugin);
 
             db::commit();
@@ -286,6 +326,7 @@ class Plugin extends Backend {
                 }
             }
 
+//            print_r($result['data']);die;
 
             $result = ["total" => $result['total'], "rows" => $result['data']];
 

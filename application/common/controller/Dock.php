@@ -101,6 +101,12 @@ class Dock {
     }
 
 
+    /**
+     * 获取玖伍商品的参数
+     * @param $url
+     * @param $data
+     * @return array
+     */
     static public function getParamsJiuwu($url, $data){
         $info = json_decode($data['info'], true);
         //开始模拟登录

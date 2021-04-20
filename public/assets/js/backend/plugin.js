@@ -146,6 +146,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                                         Toastr.error(ret.msg);
                                         // Layer.alert(ret.msg);
                                         return false;
+                                    },
+                                    hidden:function(row){
+                                        if(row.install != true){
+                                            return true;
+                                        }
                                     }
                                 }
                             ],
@@ -185,6 +190,41 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         if(e.code == 200){
                             Toastr.success(e.msg);
                             table.bootstrapTable('refresh', {});
+                        }else if(e.code == 401){ //需要授权码
+                            var buy_link = e.data;
+                            var area = [$(window).width() > 800 ? '500px' : '95%', $(window).height() > 600 ? '330px' : '95%'];
+                            Layer.open({
+                                content: Template("authorize_tpl", {"href":buy_link}),
+                                zIndex: 99,
+                                area: area,
+                                title: '请输入插件授权码',
+                                resize: false,
+                                btn: ['立即绑定', '取消'],
+                                yes: function (index, layero) {
+                                    layer.load();
+                                    var data = {
+                                        user_id:uid,
+                                        plugin_id: plugin_id,
+                                        authorize_code: $("#inputAuthorize", layero).val(),
+                                    };
+                                    $.post("plugin/bind_authorize", data, function(e){
+                                        console.log(e)
+                                        if(e.code == 400){
+                                            layer.closeAll('loading');
+                                            Toastr.error(e.msg);
+                                        }else if(e.code == 200){
+                                            Layer.closeAll();
+                                            Layer.alert(e.msg);
+                                        }
+                                    }, "json");
+
+                                },
+                                btn2: function () {
+                                    Layer.closeAll();
+                                }
+                            });
+
+
                         }else{
                             Toastr.error(e.msg);
                         }
