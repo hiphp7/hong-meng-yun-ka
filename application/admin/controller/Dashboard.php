@@ -83,7 +83,7 @@ class Dashboard extends Backend {
 
         db::commit();
 
-        $version = $this->version;
+        /*$version = $this->version;
         $upgrade_url = "http://www.hmy3.com/api/upgrade/check_upgrade/type/shop/version/" . $version;
 
         if(Cache::has('upgrade_result')){
@@ -97,21 +97,18 @@ class Dashboard extends Backend {
             Cache::set('upgrade_result', $result, 3600 * 12);
         }
 
-
-
-
         if (empty($result) || $result["code"] == 400) {
             $this->assign("upgrade", false);
         } else {
             $upgrade_data = $result["data"];
             $this->assign("upgrade", true);
             $this->assign("new_version", $upgrade_data);
-        }
+        }*/
 
 
 
         $this->view->assign([
-            'version' => $version,
+//            'version' => $version,
             "options" => $options,
             "today_register" => $today_register,
             "category_total" => $category_total,

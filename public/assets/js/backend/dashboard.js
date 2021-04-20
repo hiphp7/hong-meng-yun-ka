@@ -2,10 +2,18 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
 
     var Controller = {
         index: function () {
+            //初始化版本检测
+            $.get("upgrade/initVersion", function(e){
+                $('#version-loading').hide();
+                $('#init-version').show();
+                if(e.code == 400){
+                    $('#version').html(e.data)
+                }else{
+                    $('#version').html(e.version)
+                    $("#check-update").html("发现新版本v" + e.data.version + " <a data-href='/admin/upgrade/index/file/' id='download-update' style='cursor: pointer;'>下载更新</a>");
+                }
+            }, "json");
 
-
-            // 弹窗自适应宽高
-            // var area = Fast.config.openArea != undefined ? Fast.config.openArea : [$(window).width() > 800 ? '800px' : '95%', $(window).height() > 600 ? '600px' : '95%'];
 
             /**
              * 下载更新

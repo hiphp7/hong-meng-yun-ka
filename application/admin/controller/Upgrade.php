@@ -153,6 +153,37 @@ class Upgrade extends Backend {
         return $filename;
     }
 
+    /**
+     * 初始化版本
+     */
+    public function initVersion(){
+        $version = $this->version;
+        $upgrade_url = "http://www.hmy3.com/api/upgrade/check_upgrade/type/shop/version/" . $version;
+
+        if(Cache::has('upgrade_result')){
+            $result = Cache::get('upgrade_result');
+        }else{
+            try {
+                $result = json_decode(file_get_contents($upgrade_url), true);
+            }catch (\Exception $e){
+                $result = [];
+            }
+            Cache::set('upgrade_result', $result, 3600 * 12);
+        }
+
+
+
+        if (empty($result) || $result["code"] == 400) { //版本检测失败或没有新版本
+            return json(['code' => 400, 'msg' => '版本检测失败或没有新版本', 'data' => $this->version]);
+            $this->assign("upgrade", false);
+        } else {
+            return json(['code' => 200, 'msg' => '发现新版本', 'data' => $result['data'], 'version' => $this->version]);
+            $upgrade_data = $result["data"];
+            $this->assign("upgrade", true);
+            $this->assign("new_version", $upgrade_data);
+        }
+    }
+
 
     /**
      * 检查更新

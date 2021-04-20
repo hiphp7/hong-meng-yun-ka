@@ -200,7 +200,6 @@ class Plugin extends Backend {
                     unset($active_plugins[$key]);
                 }
             }
-//echo ROOT_PATH . 'public/content/plugin/' . $plugin . '/' . $plugin . '_del.php';die;
             db::name('options')->where(['option_name' => 'active_plugin'])->update(['option_content' => serialize($active_plugins)]);
             if(file_exists(ROOT_PATH . 'public/content/plugin/' . $plugin . '/' . $plugin . '_del.php')){
                 include_once ROOT_PATH . 'public/content/plugin/' . $plugin . '/' . $plugin . '_del.php';
