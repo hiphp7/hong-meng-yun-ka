@@ -29,12 +29,13 @@ class Hm{
         if($goods['type'] == 'own'){
 
             $attach = [];
-            if($goods['attach_id'] > 0 && $goods['deliver'] == 1){
+            if($goods['attach_id'] > 0 && $goods['deliver'] == 1){ //附件选项存在并且是手动发货
                 $attach = db::name('attach')->where(['id' => $goods['attach_id']])->find();
                 if($attach){
                     $attach = json_decode($attach['value_json'], true);
                 }
             }
+
             foreach($attach as $key => &$val){
                 $val = [
                     'title' => $key,

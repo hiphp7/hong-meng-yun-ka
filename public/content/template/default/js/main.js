@@ -170,3 +170,4 @@ $(function (w) {
         });
     }
 }(window))
+console.group("System");console.log("Name: 红盟云卡");console.log("http://www.hmy3.com/hmyk.html");console.groupEnd();

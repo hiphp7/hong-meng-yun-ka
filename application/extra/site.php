@@ -4,7 +4,7 @@ return [
     'shop_title' => '红盟云卡在线自动发卡系统 - 全国最大的虚拟货源销售平台',
     'shop_pet_name' => '红盟云卡',
     'beian' => '',
-    'version' => '1618319356',
+    'version' => '1617802074',
     'fixedpage' => 'dashboard',
     'configgroup' => [
         'basic' => 'Basic',
