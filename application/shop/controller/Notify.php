@@ -41,7 +41,8 @@ class Notify extends Base {
                 $order = db::name('order')->where(['order_no' => $order_no, 'status' => 'weizhifu'])->find();
                 if (!$order) {
                     if($mode == "return"){
-                        header("location: " . url('/order')); die;
+                        header("location: " . url('/orderContent/' . $order['id'])); die;
+//                        header("location: " . url('/order')); die;
                     }elseif($mode == "notify"){
                         echo 'success'; die;
                     }else{
@@ -84,7 +85,8 @@ class Notify extends Base {
                 $order = db::name('order')->where(['order_no' => $payId, 'status' => 'weizhifu'])->find();
                 if (!$order) {
                     if($mode == "return"){
-                        header("location: " . url('/order')); die;
+                        header("location: " . url('/orderContent/' . $order['id'])); die;
+//                        header("location: " . url('/order')); die;
                     }elseif($mode == "notify"){
                         echo 'success'; die;
                     }else{
@@ -139,7 +141,8 @@ class Notify extends Base {
                 }
                 doAction('order_notify', $goods, $order); //订单回调挂载点
                 if($mode == 'return'){
-                    header("location: " . url('/order')); die;
+                    header("location: " . url('/orderContent/' . $order['id'])); die;
+//                    header("location: " . url('/order')); die;
                 }else{
                     echo 'success'; die;
                 }

@@ -176,14 +176,14 @@ class Buy extends Base {
             'money'       => $order_money, //订单金额
             'remote_money' => $goods['buy_price'] * $post['goods_num'], //进货价
             'attach' => json_encode($attach), //附加内容
-            'email' => $post['email'],
-            'password' => $post['password'],
         ];
 
 //        echo '<pre>';
 //        print_r($insert);die;
 
         if ($order_id == 0) { //新订单
+            $insert['email'] = $post['email'];
+            $insert['password'] = $post['password'];
             $id = db::name('order')->insertGetId($insert);
             $order = $insert;
             $order['id'] = $id;
@@ -379,7 +379,7 @@ class Buy extends Base {
                     break;
                 }
 
-                if($val['type'] == 'vpay' && isset($payInfo['wxpay'])){
+                if($val['type'] == 'vpay' && isset($payInfo['alipay'])){
                     $pay_type = 'vpay';
                     break;
                 }
@@ -545,6 +545,7 @@ class Buy extends Base {
      * 通过用户选择的支付方式得出系统需要执行的支付方式
      */
     public function get_pay_type($u_pay_type){
+//        echo $u_pay_type;die;
         //支付配置列表
         $pay_list = db::name('pay')->where(['status' => 1])->order('weigh desc')->select();
 
@@ -583,14 +584,12 @@ class Buy extends Base {
             $pay_type = 'alipay_wap';
         }
         if($u_pay_type == 'alipay'){
-            // 区分出官方支付宝,码支付,易支付的优先级
+            // 区分出官方支付宝,码支付,易支付,v免签的优先级
+//            echo '<pre>'; print_r($pay_list);
             foreach($pay_list as $key => $val){
                 $payInfo = json_decode($val['value'], true); //支付账号配置信息
-
                 if($val['type'] == 'alipay'){
-                    $alipay = new Alipay();
                     if(is_mobile()){
-
                         if(empty($payInfo['sm'])){
                             $pay_type = 'alipay_wap';
                         }else{
@@ -616,13 +615,13 @@ class Buy extends Base {
                     break;
                 }
 
-                if($val['type'] == 'vpay' && isset($payInfo['wxpay'])){
+                if($val['type'] == 'vpay' && isset($payInfo['alipay'])){
                     $pay_type = 'vpay';
                     break;
                 }
             }
         }
-
+//echo $pay_type;die;
 
         if($u_pay_type == 'qqpay'){ //qq付款
             // 区分出官方qq，码支付,易支付的qq付款优先级
@@ -647,6 +646,7 @@ class Buy extends Base {
             }
 
         }
+//        echo $pay_type;die;
         return $pay_type;
     }
 

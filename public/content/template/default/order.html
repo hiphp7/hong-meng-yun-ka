@@ -197,7 +197,7 @@ window.onload = function(){
                 if(list[i].status == 'yifahuo'){
                     html += `<button type="button" id="sh-btn-${list[i].id}" class="layui-btn layui-btn-xs sh-btn" data-id="${list[i].id}">确认收货</button>`;
                 }
-                if(list[i].status == 'weizhifu' || list[i].status == 'yiguoqi' || list[i].status == 'success'){ //订单完成或者未付款或者失效订单
+                if(list[i].status == 'weizhifu' || list[i].status == 'yiguoqi'){ //订单完成或者未付款或者失效订单
                     html += `<button type="button" class="layui-btn layui-btn-xs del-btn" data-id="${list[i].id}">删除订单</button>`;
                 }
                 html += `
