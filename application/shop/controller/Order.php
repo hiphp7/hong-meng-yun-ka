@@ -32,7 +32,7 @@ class Order extends Base {
         ];
         $order = db::name('order')->where($where)->find();
 
-        $kami = $order['kami'];
+        $kami = empty($order['kami']) ? '' : $order['kami'];
 
         $this->assign([
             'title' => '订单详情    ',
