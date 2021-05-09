@@ -88,12 +88,14 @@
                                                 <input type="text" name="email" required="" lay-verify="required" placeholder="请输入邮箱" autocomplete="off">
                                             </label>
                                         </div>
+                                        {if condition="$site.search_password == 1"}
                                         <div class="entry">
                                             <span class="l-msg">查询密码:</span>
                                             <label class="input">
                                                 <input type="password" name="password" required="" lay-verify="required" placeholder="请输入查询密码" autocomplete="off">
                                             </label>
                                         </div>
+                                        {/if}
                                         <div class="btn">
                                             <button>
                                                 立即查询
@@ -162,6 +164,9 @@ window.onload = function(){
 
         var data = {"offset":offset, "limit": limit};
 
+        {if condition="$site.search_password == 0"}
+        data.search_password = 0;
+        {/if}
         {if condition="!empty($post)"}
         data.search_type = "{$post.search_type}";
         {/if}
@@ -171,7 +176,7 @@ window.onload = function(){
 
         {if condition="!empty($post) && $post.search_type == 'email'"}
         data.email = "{$post.email}";
-        data.password = "{$post.password}";
+        data.password = "{:empty($post.password) ? '' : $post.password}";
         {/if}
 
 
@@ -223,7 +228,13 @@ window.onload = function(){
 
     $("body").on("click", ".look-kami-btn", function(){
         var order_id = $(this).data('id');
+        {if condition="!empty($post) && $post.search_type == 'email'"}
+        var search_content = "{$search_content}"
+
+        location.href = "/orderContent/" + order_id + ".html?search_content=" + search_content;
+        {else /}
         location.href = "/orderContent/" + order_id + ".html";
+        {/if}
     })
 
     $("body").on("click", ".sh-btn", function(){

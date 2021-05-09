@@ -88,6 +88,9 @@ class Hm{
                 'email' => $params['email'],
                 'password' => $params['password']
             ];
+            if(isset($params['search_password'])){
+                unset($where['password']);
+            }
         }else if($search_type == 'order_no'){
             $where = [
                 'order_no' => $params['order_no']

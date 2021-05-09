@@ -122,12 +122,14 @@
                                     <input type="text" name="email" required lay-verify="required|email" placeholder="请输入您的邮箱" value="{$order.email|default=''}">
                                 </label>
                             </div>
+                            {if condition="$site.search_password == 1"}
                             <div class="entry">
                                 <span class="l-msg">查询密码：</span>
                                 <label class="input">
                                     <input type="text" name="password" required lay-verify="required" placeholder="请填写订单的查询密码" value="{$order.password|default=''}">
                                 </label>
                             </div>
+                            {/if}
 
 <!--                            对接商品订单参数-->
                             {if condition="isset($goods.order_params)"}

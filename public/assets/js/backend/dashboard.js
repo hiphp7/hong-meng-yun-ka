@@ -14,6 +14,28 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
                 }
             }, "json");
 
+            //查询广告接口
+            $.get("dashboard/poster", function(e){
+                if(e.code == 200){
+                    $('#poster-box').show()
+                    $('#poster_url').attr('href', e.data.poster_url);
+                    var poster_html = ``;
+                    for(var i = 0; i < e.data.poster.length; i++){
+                        poster_html += `
+                            <tr class="text-gray-700 dark:text-gray-400">
+                                <td class="px-4 py-3">
+                                    <a href="${e.data.poster[i].url}" target="_blank">
+                                        ${e.data.poster[i].content}
+                                    </a>
+    
+                                </td>
+                            </tr>
+                        `;
+                    }
+                    $('#poster-list').append(poster_html);
+                }
+            }, "json");
+
 
             /**
              * 下载更新

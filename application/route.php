@@ -16,6 +16,7 @@ use think\Route;
 Route::get('upgrade','index/index/upgrade'); //升级
 
 Route::get('/','shop/index/index'); //首页
+Route::get('category/:category_id','shop/index/index'); //分类商品列表
 Route::get('category','shop/category/index'); //分类
 Route::get('service','shop/service/index'); //客服
 Route::get('login','shop/login/index'); //登录

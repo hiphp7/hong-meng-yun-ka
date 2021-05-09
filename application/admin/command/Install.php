@@ -102,7 +102,7 @@ class Install extends Command {
             $mysqlUsername = $this->request->post('mysqlUsername', 'root');
             $mysqlPassword = $this->request->post('mysqlPassword', '');
             $mysqlDatabase = $this->request->post('mysqlDatabase', '');
-            $mysqlPrefix = $this->request->post('mysqlPrefix', 'fa_');
+            $mysqlPrefix = $this->request->post('mysqlPrefix', 'hm_');
             $adminUsername = $this->request->post('adminUsername', 'admin');
             $adminPassword = $this->request->post('adminPassword', '');
             $adminPasswordConfirmation = $this->request->post('adminPasswordConfirmation', '');
@@ -150,7 +150,7 @@ class Install extends Command {
 
         $sql = file_get_contents(INSTALL_PATH . 'hongmeng.sql');
 
-        $sql = str_replace("`ql_", "`{$mysqlPrefix}", $sql);
+        $sql = str_replace("`hm_", "`{$mysqlPrefix}", $sql);
 
         // 先尝试能否自动创建数据库
         $config = Config::get('database');

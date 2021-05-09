@@ -183,7 +183,7 @@ class Buy extends Base {
 
         if ($order_id == 0) { //新订单
             $insert['email'] = $post['email'];
-            $insert['password'] = $post['password'];
+            $insert['password'] = empty($post['password']) ? '' : $post['password'];
             $id = db::name('order')->insertGetId($insert);
             $order = $insert;
             $order['id'] = $id;

@@ -15,8 +15,10 @@ class Index extends Base {
     public function index() {
 //        echo session::get("uid");die;
 //        echo $this->template_path;die;
+        $category_id = $this->request->has('category_id') ? $this->request->param('category_id') : 0;
         $this->assign([
-            'page' => 'index'
+            'page' => 'index',
+            'category_id' => $category_id
         ]);
         return view($this->template_path . "index.html");
     }

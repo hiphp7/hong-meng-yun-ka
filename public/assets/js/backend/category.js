@@ -23,18 +23,40 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 sortName: 'weigh',
                 pagination: false,
                 commonSearch: false,
+                clickToSelect: false,
+                dblClickToEdit: false,
                 // search: false,
                 columns: [
                     [
                         {checkbox: true},
                         {field: 'name', title: __('Name'), align: 'left'},
                         {field: 'status', title: __('Status'), operate: false, formatter: Table.api.formatter.status},
-                        {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
+                        {
+                            field: 'operate',
+                            title: __('Operate'),
+                            table: table,
+                            events: Table.api.events.operate,
+                            buttons: [
+                                {
+                                    name: 'add_stock',
+                                    title: __('查看分类'),
+                                    classname: 'btn btn-xs btn-info btn-look',
+                                    icon: 'fa fa-eye',
+                                    text:'查看分类',
+                                    extend: 'target="_blank"',
+                                    url: function(row){
+                                        return '/category/' + row.id + '.html';
+                                    }
+                                }
+                            ],
+                            formatter: Table.api.formatter.operate
+                        }
                     ]
                 ]
             };
             // 初始化表格
             table.bootstrapTable(tableOptions);
+
 
 
             Table.button.dragsort = {

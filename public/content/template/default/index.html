@@ -23,11 +23,11 @@ $goods_list = goods_list();
                     </svg>
                     <span style="font-size: 13px;">选择分类</span>
                 </div>
-                <div class="cate cateBox">
+                <div class="cate cateBox" id="cateBox">
                     <?php $_img = 0; ?>
                     {volist name="goods_list" id="vo" key="key"}
                     <?php $_img = $_img >= 4 ? 0 : $_img; ?>
-                    <div class="cate-box {:$key == 1 ? 'cate-box-select' : ''}" data-key="{$key}"> 
+                    <div class="cate-box {:$category_id > 0 && $category_id == $vo.id ? 'cate-box-select' : ($key == 1 && $category_id == 0 ? 'cate-box-select' : '')}" data-key="{$key}">
                         <p>{$vo.name}</p>
                         <div>商品数量：{$vo.goods_num}</div> 
                     </div>  
@@ -59,7 +59,7 @@ $goods_list = goods_list();
                     </p>
 
                     {volist name="goods_list" id="vo" key="key"}
-                    <div class="goods-list goods-list-{$key}" style="{:$key > 1 ? 'display: none;' : ''}">
+                    <div class="goods-list goods-list-{$key}" style="{:$category_id > 0 && $category_id == $vo.id ? '' : ($key == 1 && $category_id == 0 ? '' : 'display: none;')}">
                         {volist name="$vo.goods" id="v"}
                         <a href="javascript:void(0);" data-id="{$v.id}" data-stock="{$v.stock}" class="goods-box product">
                             <div class="goodsItem">
@@ -103,6 +103,14 @@ window.onload = function(){
         var key = $(this).data("key");
         $(".goods-list").hide();
         $(".goods-list-" + key).show();
+
+
+        var div = document.getElementById('cateBox');
+        var width = div.scrollWidth;
+        var mrg = $(this)[0].offsetLeft;
+        // console.log(mrg)
+        $('#cateBox').animate({ scrollLeft: mrg - 120 + 'px' });
+        // console.log(width)
     })
 
 

@@ -46,11 +46,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                             title: __('商品类型'),
                             formatter: function(value){
                                 if(value == 0){
-                                    return '<span class="label"  title="" style="background: #9c27b0;"> 卡 密 </span>';
+                                    return '<span class="label"  title="" style="background: #00bcd4;"> 卡 密 </span>';
                                 }else if(value == 1){
                                     return '<span class="label"  title="" style="background: #00bcd4;">激 活 码</span>';
-                                }else if(value == 2){
-                                    return '<span class="label"  title="" style="background: #ff5722;">账号密码</span>';
+                                }else if(value == 'chongfukami'){
+                                    return '<span class="label"  title="" style="background: #ff5722;">重复卡密</span>';
                                 }else if(value == 3){
                                     return '<span class="label"  title="" style="background: #00acc1;"> 图 片 </span>';
                                 }else if(value == 4){

@@ -91,29 +91,54 @@ class Goods extends Backend {
                         $this->model->validateFailException(true)->validate($validate);
                     }
 //                    print_r($params);die;
-					$kami = $params['kami'];
+					$kami = isset($params['kami']) ? $params['kami'] : null;
 					if($goods_info['goods_type'] == 3){
 					    $kami = explode(',', $kami);
+                    }elseif($goods_info['goods_type'] == 'chongfukami'){
+					    if(isset($params['kami'])){
+                            $kami = trim($params['kami'], ' ');
+                            if(empty($kami)){
+                                throw new Exception("卡密不能为空");
+                            }
+                        }
+
+					    db::name('goods')->where(['id' => $goods_info['id']])->update(['stock' => $params['stock']]);
                     }else{
                         $kami = explode("\r\n", $kami);
                     }
 
-					$kami = array_filter($kami); //去除空元素
-					$insert = [];
-					$timestamp = time();
-					foreach($kami as $val){
-						$insert[] = [
-							'type' => $goods_info['goods_type'],
-							'goods_id' => $id,
-							'cdk' => $val,
-							'createtime' => $timestamp
-						];
-					}
-					db::name('cdkey')->insertAll($insert);
-					$kami_num = count($kami);
-					if($kami_num > 0){
-						db::name('goods')->where(['id' => $id])->setInc('stock', $kami_num);
-					}
+                    $timestamp = time();
+
+                    if($goods_info['goods_type'] != 'chongfukami'){
+                        $kami = array_filter($kami); //去除空元素
+                        $insert = [];
+
+                        foreach($kami as $val){
+                            $insert[] = [
+                                'type' => $goods_info['goods_type'],
+                                'goods_id' => $id,
+                                'cdk' => $val,
+                                'createtime' => $timestamp
+                            ];
+                        }
+                        db::name('cdkey')->insertAll($insert);
+                        $kami_num = count($kami);
+                        if($kami_num > 0){
+                            db::name('goods')->where(['id' => $id])->setInc('stock', $kami_num);
+                        }
+                    }else{
+                        if(isset($params['kami'])){
+                            $insert = [
+                                'type' => $goods_info['goods_type'],
+                                'goods_id' => $id,
+                                'cdk' => $kami,
+                                'createtime' => $timestamp
+                            ];
+                            db::name('cdkey')->insert($insert);
+                        }
+
+                    }
+
 					$result = true;
                     Db::commit();
                 } catch (ValidateException $e) {
@@ -134,8 +159,13 @@ class Goods extends Backend {
             }
             $this->error(__('Parameter %s can not be empty', ''));
         }
+        $cdk = null;
+        if($goods_info['goods_type'] == 'chongfukami'){
+            $cdk = db::name('cdkey')->where(['goods_id' => $goods_info['id']])->find();
+        }
 		$this->assign([
-			'goods_info' => $goods_info
+			'goods_info' => $goods_info,
+            'cdk' => $cdk,
 		]);
         return $this->view->fetch();
     }
@@ -224,11 +254,18 @@ class Goods extends Backend {
 
 					$ids = $this->request->param('ids');
 
+                    if($params['goods_type'] == 'chongfukami'){
+                        if(isset($params['stock'])){
+                            unset($params['stock']);
+                        }
+                        $stock = db::name('cdkey')->where(['goods_id' => $ids])->count();
+                    }else{
+                        if(isset($params["deliver"]) && $params["deliver"] == 0){ //自动发货 重构库存
+                            $stock = db::name('cdkey')->where(['goods_id' => $ids])->count();
+                            $params['stock'] = $stock;
+                        }
+                    }
 
-					if(isset($params["deliver"]) && $params["deliver"] == 0){ //自动发货 重构库存
-						$stock = db::name('cdkey')->where(['goods_id' => $ids])->count();
-						$params['stock'] = $stock;
-					}
 //					echo $row->goods_type;die;
 //					print_r($row->toArray());die;
                     if(isset($params['goods_type']) && $row->goods_type != $params['goods_type'] && $stock > 0){ //自营商品类型
@@ -253,10 +290,7 @@ class Goods extends Backend {
                         $dock_data['num'] = $params["num"];
                         unset($params["num"]);
                         $params["dock_data"] = json_encode($dock_data);
-//                        print_r($dock_data);
                     }
-
-//                    print_r($params);die;
 
                     $result = $row->allowField(true)->save($params);
                     Db::commit();
@@ -281,7 +315,6 @@ class Goods extends Backend {
 //
         $row = Hm::handle_goods($row->toArray());
         $row['images'] = implode(',', $row['images']);
-//        echo '<pre>'; print_r($row);die;
         if($row['type'] != 'own'){
             //获取加价模板列表
             $increase = db::name('docking_increase')->select();

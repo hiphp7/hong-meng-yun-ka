@@ -4,6 +4,7 @@ namespace app\shop\controller;
 use app\common\controller\Hm;
 
 use think\Db;
+use think\Session;
 
 class Order extends Base {
 
@@ -13,11 +14,23 @@ class Order extends Base {
         $user = Hm::getUser();
 
         $post = $this->request->post();
+
+        $search_content = "";
+        if($search_type == "email" && $this->request->isPost()){
+            $search_content = [
+                "email" => $post["email"],
+                "password" => empty($post['password']) ? '' : $post['password']
+            ];
+            $search_content = urlencode(base64_encode(serialize($search_content)));
+
+        }
+
         $this->assign([
             'title' => '订单列表',
             'search_type' => $search_type, //订单状态
             'user' => $user, //用户信息
             'post' => $post,
+            "search_content" => $search_content,
         ]);
         return view($this->template_path . "order.html");
     }
@@ -26,11 +39,29 @@ class Order extends Base {
     public function orderContent(){
         $user = Hm::getUser();
         $order_id = $this->request->param('order_id');
-        $where = [
-            'uid' => $user['id'],
-            'id' => $order_id
-        ];
-        $order = db::name('order')->where($where)->find();
+
+        if($this->request->param('search_content')){
+            $search_content = unserialize(base64_decode(urldecode($this->request->param('search_content'))));
+            $where = [
+                'email' => $search_content['email'],
+                'password' => $search_content['password'],
+                'id' => $order_id
+            ];
+            if(empty($search_content['password'])){
+                unset($where['password']);
+            }
+            $order = db::name('order')->where($where)->find();
+            if(!$order){
+                $this->error('订单不存在！');
+            }
+        }else{
+            $where = [
+                'uid' => $user['id'],
+                'id' => $order_id
+            ];
+            $order = db::name('order')->where($where)->find();
+        }
+
 
         $kami = empty($order['kami']) ? '' : $order['kami'];
 

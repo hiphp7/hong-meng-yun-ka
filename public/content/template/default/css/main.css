@@ -859,11 +859,11 @@ a {
 
 .cateBox {
     display: flex;
-    overflow-x: scroll;
+    overflow-x: auto;
 }
 
 .cateBox::-webkit-scrollbar {
-    display: none;
+    /*display: none;*/
 }
 
 .main .cate .cate-box {

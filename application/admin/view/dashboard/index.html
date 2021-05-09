@@ -30,7 +30,9 @@
     .set-a a:visited{
         color: #fff;
     }
-
+    #poster-list p{
+        display: inline-block;
+    }
 </style>
 {:doAction('admin_dashboard_head')}
 
@@ -135,6 +137,25 @@
                 <div>
                     <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">今日利润</p>
                     <p class="text-lg font-semibold text-gray-700 dark:text-gray-200">{$today_order_profit}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid gap-6 mb-8 md:grid-cols-1 xl:grid-cols-1" style="margin-top: 20px; display: none;" id="poster-box">
+        <div class="w-full overflow-hidden rounded-lg shadow-xs">
+            <div class="flex">
+                <div class="w-full overflow-x-auto">
+                    <table class="w-full" style="line-height: 150%;">
+                        <thead>
+                        <tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
+                            <th class="px-4 py-3">联盟推广<a href="" id="poster_url" target="_blank" style="float: right;">我要推广</a></th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800" id="poster-list">
+
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

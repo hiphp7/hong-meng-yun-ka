@@ -83,30 +83,6 @@ class Dashboard extends Backend {
 
         db::commit();
 
-        /*$version = $this->version;
-        $upgrade_url = "http://www.hmy3.com/api/upgrade/check_upgrade/type/shop/version/" . $version;
-
-        if(Cache::has('upgrade_result')){
-            $result = Cache::get('upgrade_result');
-        }else{
-            try {
-                $result = json_decode(file_get_contents($upgrade_url), true);
-            }catch (\Exception $e){
-                $result = [];
-            }
-            Cache::set('upgrade_result', $result, 3600 * 12);
-        }
-
-        if (empty($result) || $result["code"] == 400) {
-            $this->assign("upgrade", false);
-        } else {
-            $upgrade_data = $result["data"];
-            $this->assign("upgrade", true);
-            $this->assign("new_version", $upgrade_data);
-        }*/
-
-
-
         $this->view->assign([
 //            'version' => $version,
             "options" => $options,
@@ -121,6 +97,24 @@ class Dashboard extends Backend {
         ]);
 
         return $this->view->fetch();
+    }
+
+
+    /**
+     * 获取广告链接
+     */
+    public function poster(){
+        $upgrade_url = "http://www.hmy3.com/api/hmyk/poster";
+
+
+        try {
+            $result = json_decode(hmCurl($upgrade_url), true);
+        }catch (\Exception $e){
+            $result = [];
+        }
+
+        return json($result);
+
     }
 
 

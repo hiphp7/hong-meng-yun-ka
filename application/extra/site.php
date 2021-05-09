@@ -19,4 +19,5 @@ return [
     'register' => '1',
     'statistics' => '',
     'diy_name' => '商品购买',
+    'search_password' => '1',
 ];

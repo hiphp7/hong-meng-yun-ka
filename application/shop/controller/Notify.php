@@ -303,7 +303,7 @@ class Notify extends Base {
         ];
 
         if ($goods['deliver'] == 0) { //商品类型是自动发货时
-            $kami = $this->getKami($goods['id'], $order['goods_num']); //从商品库存中拿出用户购买的卡密并返回剩余卡密
+            $kami = $this->getKami($goods, $order['goods_num']); //从商品库存中拿出用户购买的卡密并返回剩余卡密
             $update['kami'] = $kami;
         }
 
@@ -394,13 +394,22 @@ class Notify extends Base {
      * return @kami 取出的卡密
      * return @goods_kami 剩余的卡密
      */
-    public function getKami($goods_id, $goods_num) {
-        $kami_result = db::name('cdkey')->where(['goods_id' => $goods_id])->limit($goods_num)->select();
-        $kami = [];
-        foreach($kami_result as $key => $val){
-            db::name('cdkey')->where(['id' => $val['id']])->delete();
-            $kami[] = $val['cdk'];
+    public function getKami($goods, $goods_num) {
+        if($goods['goods_type'] == 'chongfukami'){
+            $kami_result = db::name('cdkey')->where(['goods_id' => $goods['id']])->limit($goods_num)->find();
+            $kami = [];
+            for($i = 0; $i < $goods_num; $i++){
+                $kami[] = $kami_result['cdk'];
+            }
+        }else{
+            $kami_result = db::name('cdkey')->where(['goods_id' => $goods['id']])->limit($goods_num)->select();
+            $kami = [];
+            foreach($kami_result as $key => $val){
+                db::name('cdkey')->where(['id' => $val['id']])->delete();
+                $kami[] = $val['cdk'];
+            }
         }
+
 
         $kami = implode("\r\n", $kami);
 

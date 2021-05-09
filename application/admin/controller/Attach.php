@@ -3,6 +3,9 @@
 namespace app\admin\controller;
 
 use app\common\controller\Backend;
+use think\Db;
+use think\Exception;
+use think\exception\PDOException;
 
 /**
  * 附加选项
@@ -35,5 +38,48 @@ class Attach extends Backend {
      * 需要将application/admin/library/traits/Backend.php中对应的方法复制到当前控制器,然后进行修改
      */
 
+
+    /**
+     * 删除
+     */
+    public function del($ids = "") {
+        if (!$this->request->isPost()) {
+            $this->error(__("Invalid parameters"));
+        }
+        $ids = $ids ? $ids : $this->request->post("ids");
+        if ($ids) {
+            $pk = $this->model->getPk();
+            $adminIds = $this->getDataLimitAdminIds();
+            if (is_array($adminIds)) {
+                $this->model->where($this->dataLimitField, 'in', $adminIds);
+            }
+            $list = $this->model->where($pk, 'in', $ids)->select();
+
+            $count = 0;
+            Db::startTrans();
+            try {
+                foreach ($list as $k => $v) {
+                    $res = db::name('goods')->where(['attach_id' => $v->id])->find();
+                    if($res){
+                        throw new Exception("附加选项被占用，无法删除");
+                    }
+                    $count += $v->delete();
+                }
+                Db::commit();
+            } catch (PDOException $e) {
+                Db::rollback();
+                $this->error($e->getMessage());
+            } catch (Exception $e) {
+                Db::rollback();
+                $this->error($e->getMessage());
+            }
+            if ($count) {
+                $this->success();
+            } else {
+                $this->error(__('No rows were deleted'));
+            }
+        }
+        $this->error(__('Parameter %s can not be empty', 'ids'));
+    }
 
 }
